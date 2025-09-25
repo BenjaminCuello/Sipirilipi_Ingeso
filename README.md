@@ -67,7 +67,3 @@ El sistema busca profesionalizar la gestión de la pyme mediante:
 
 ### Backoffice (admin/vendedor)
 - CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
-
----
-git clone https://github.com/tu-usuario/tu-repo.git
-cd tu-repo
