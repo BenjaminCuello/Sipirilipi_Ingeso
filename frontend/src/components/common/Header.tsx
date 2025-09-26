@@ -5,17 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { LoginSheet } from "@/components/auth/LoginSheet";
-import { CategoriesButton } from "@/components/common/CategoriesButton";
+import { CategoriesMenu } from "@/components/common/CategoriesMenu";
 
 export function Header() {
     const [openLogin, setOpenLogin] = useState(false);
     const loginAnchorRef = useRef<HTMLDivElement | null>(null);
 
     return (
-        <header className="sticky top-0 z-40 border-b border-border bg-[var(--color-header)] text-white">
-            {/* contenedor más compacto */}
-            <div className="w-full max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between gap-6">
-                {/* logo */}
+        <header className="sticky top-0 z-40 bg-[var(--color-header)] text-white">
+            <div className="w-full max-w-[1400px] mx-auto px-6 py-3 flex items-center gap-6">
+                {/* Logo */}
                 <div className="shrink-0">
                     <Link href="/" className="block" aria-label="Ir a inicio">
                         <Image
@@ -29,15 +28,20 @@ export function Header() {
                     </Link>
                 </div>
 
-                {/* buscador minimal */}
+                {/* Categorías entre logo y búsqueda */}
+                <div className="shrink-0 ml-15">
+                    <CategoriesMenu />
+                </div>
+
+                {/* Buscador alineado a la derecha */}
                 <div className="flex-1 flex justify-center">
-                    <div className="relative">
+                <div className="relative">
                         <input
                             type="search"
                             name="search"
                             placeholder="Buscar..."
                             className="shadow-lg focus:border-2 border-gray-300 px-5 py-2
-                         rounded-xl w-[35rem] transition-all focus:w-[50rem]
+                         rounded-xl w-[34rem] transition-all focus:w-[42rem]
                          outline-none bg-white text-gray-900 placeholder-gray-400"
                         />
                         <svg
@@ -56,21 +60,16 @@ export function Header() {
                     </div>
                 </div>
 
-                {/* acciones derecha */}
-                <nav className="shrink-0 flex items-center gap-4 ml-6">
-                    <div className="mr-1">
-                        <CategoriesButton />
-                    </div>
-
-                    {/* Login */}
+                {/* Acciones derecha: login + carrito */}
+                <nav className="shrink-0 flex items-center gap-4">
                     <div className="relative" ref={loginAnchorRef}>
                         <button
                             onClick={() => setOpenLogin((v) => !v)}
-                            className="h-12 w-[150px] rounded-[var(--radius-lg)]
+                            className="h-10 px-4 rounded-[var(--radius-lg)]
                          text-white border border-white/40
                          hover:bg-white/10 transition"
                         >
-                            <div className="h-11 w-[146px] rounded-[12px] flex items-center justify-center gap-2">
+                            <div className="h-9 flex items-center justify-center gap-2">
                                 <User className="text-white" size={18} />
                                 <span className="text-sm font-medium">Iniciar sesión</span>
                             </div>
@@ -85,13 +84,12 @@ export function Header() {
 
                     {/* Carrito */}
                     <Link
-                        href={{ pathname: "/carrito" }}
+                        href={{ pathname: "/carrito" }} // evita error de typed routes si aún no existe la página
                         className="h-10 w-10 grid place-items-center rounded-full hover:bg-white/10"
                         aria-label="Carrito"
                     >
                         <ShoppingCart />
                     </Link>
-
                 </nav>
             </div>
         </header>
