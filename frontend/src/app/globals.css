@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+    --color-bg:        #ffffff;
+    --color-fg:        #111317;
+
+    --color-header:    #1f1f22;   /* topbar gris muy oscuro */
+    --color-primary:   #0ea5e9;   /* celeste vivo */
+    --color-accent:    #00c2ff;   /* acento celeste */
+    --color-muted:     #6b7280;   /* gris texto secundario */
+    --color-border:    #e5e7eb;   /* gris bordes */
+
+    --color-search-bg: #f7f8fa;   /* input gris claro */
+    --color-search-br: #d1d5db;
+
+    --radius-lg:       14px;
+}
+
+
+html, body { height: 100%; }
+.container { max-width: 1200px; }
