@@ -4,6 +4,7 @@ import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import type { Role } from '@prisma/client';
+import { loginLimiter } from '../middleware/rateLimiters';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     const normalizedEmail = email.trim().toLowerCase();
@@ -51,4 +52,3 @@ router.post('/login', async (req, res, next) => {
 });
 
 export default router;
-

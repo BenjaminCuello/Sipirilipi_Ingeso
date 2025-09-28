@@ -30,3 +30,13 @@ model User {
   updatedAt     DateTime @updatedAt
 }
 
+// Modelo de productos
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price_cents Int
+  stock       Int      @default(0)
+  is_active   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

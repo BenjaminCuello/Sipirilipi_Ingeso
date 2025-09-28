@@ -3,10 +3,25 @@ import express, { Request, Response } from 'express';
 import { errorHandler } from './middleware/error';
 import usersRouter from './routes/users';
 import authRouter from './routes/auth';
+import productsRouter from './routes/products';
 import { prisma } from './lib/prisma';
+import helmet from 'helmet';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
+
+// Seguridad básica: Helmet
+app.use(helmet());
+
+// CORS para frontend local
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ ok: true });
@@ -15,6 +30,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // Rutas
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/products', productsRouter);
 
 app.use(errorHandler);
 
