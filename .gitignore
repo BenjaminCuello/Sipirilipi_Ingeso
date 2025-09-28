@@ -1,0 +1,10 @@
+# Node (ambos lados)
+**/node_modules
+**/dist
+
+# Entornos
+**/.env
+**/.env.*.local
+
+# SO / misc
+.DS_Store
