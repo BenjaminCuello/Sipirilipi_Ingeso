@@ -3,10 +3,11 @@ import { isAuthenticated } from "../lib/auth";
 
 export default function PublicLayout() {
   const location = useLocation();
-  // si ya está logeado, evita ver /login
+  // si ya está logueado, evita ver /login
   if (isAuthenticated()) {
     const from = (location.state as any)?.from?.pathname || "/";
     return <Navigate to={from} replace />;
   }
   return <Outlet />;
 }
+

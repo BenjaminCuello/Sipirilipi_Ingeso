@@ -2,11 +2,13 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
+import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
 
 // GET /api/users → lista (no expone password_hash)
-router.get('/', async (_req, res, next) => {
+router.get('/', requireAuth, requireRole(Role.ADMIN), async (_req, res, next) => {
   try {
     const users = await prisma.user.findMany({
       select: { id: true, name: true, email: true, role: true, createdAt: true, updatedAt: true },
@@ -30,13 +32,14 @@ router.post('/', async (req, res, next) => {
   try {
     const data = createUserSchema.parse(req.body);
     const password_hash = await bcrypt.hash(data.password, 10);
+    const email = data.email.trim().toLowerCase();
 
     const user = await prisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email,
         password_hash,
-        role: (data.role ?? 'CUSTOMER') as any,
+        role: (data.role ?? 'CUSTOMER') as Role,
       },
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     });

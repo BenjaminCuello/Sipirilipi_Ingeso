@@ -7,7 +7,7 @@ export default function LoginPage() {
   const from = location.state?.from?.pathname || "/";
 
   const handleLogin = () => {
-    login();               // guarda "token" (demo)
+    login(); // guarda "token" (demo)
     navigate(from, { replace: true });
   };
 
@@ -26,3 +26,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

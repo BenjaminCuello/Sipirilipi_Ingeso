@@ -1,4 +1,6 @@
 // src/lib/auth.ts
-export const isAuthenticated = () => Boolean(localStorage.getItem("token"));
-export const login = () => localStorage.setItem("token", "demo-token");
-export const logout = () => localStorage.removeItem("token");
+const TOKEN_KEY = "token";
+export const isAuthenticated = () => Boolean(localStorage.getItem(TOKEN_KEY));
+export const login = () => localStorage.setItem(TOKEN_KEY, "demo-token");
+export const logout = () => localStorage.removeItem(TOKEN_KEY);
+export { TOKEN_KEY };

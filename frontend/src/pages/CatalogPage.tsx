@@ -23,7 +23,7 @@ export default function CatalogPage() {
       </header>
 
       <section className="container mx-auto p-6">
-        <p className="text-slate-600">Zona privada: aquí va tu catálogo 🔒</p>
+        <p className="text-slate-600">Zona privada: aquí va tu catálogo.</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <article key={i} className="rounded-2xl border p-4 bg-white shadow-sm">
@@ -39,3 +39,4 @@ export default function CatalogPage() {
     </main>
   );
 }
+
