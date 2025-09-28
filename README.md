@@ -17,7 +17,7 @@ El sistema busca profesionalizar la gestión de la pyme mediante:
 
 ---
 
-## 🧑‍💻 Tecnologías a usar
+##  Tecnologías a usar
 
 ### Backend
 - **Node.js + Express + TypeScript**
