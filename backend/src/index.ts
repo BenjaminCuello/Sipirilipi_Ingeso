@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import { errorHandler } from './middleware/error';
 import usersRouter from './routes/users';

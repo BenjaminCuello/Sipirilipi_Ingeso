@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
 
@@ -58,4 +58,3 @@ router.get('/', async (req, res, next) => {
 });
 
 export default router;
-

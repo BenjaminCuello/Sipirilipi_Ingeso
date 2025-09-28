@@ -1,25 +1,26 @@
-import { createBrowserRouter } from "react-router-dom";
+﻿import { createBrowserRouter } from "react-router-dom";
 import ProtectedLayout from "./layouts/ProtectedLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import CatalogPage from "./pages/CatalogPage";
+import PublicCatalogPage from "./pages/PublicCatalogPage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
-    element: <ProtectedLayout />,
+    element: <PublicLayout />,
     children: [
-      { path: "/", element: <CatalogPage /> }, // privada
+      { path: "/", element: <PublicCatalogPage /> },
+      { path: "/login", element: <LoginPage /> },
     ],
   },
   {
-    element: <PublicLayout />,
+    element: <ProtectedLayout />,
     children: [
-      { path: "/login", element: <LoginPage /> }, // pública
+      { path: "/admin", element: <CatalogPage /> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },
 ]);
 
 export default router;
-

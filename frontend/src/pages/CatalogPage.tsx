@@ -1,4 +1,4 @@
-import { logout } from "../lib/auth";
+﻿import { logout } from "../lib/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function CatalogPage() {
@@ -12,7 +12,7 @@ export default function CatalogPage() {
     <main className="min-h-dvh bg-slate-50">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold">Catálogo</h1>
+          <h1 className="text-xl font-bold">Catálogo (privado)</h1>
           <button
             onClick={handleLogout}
             className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-100 active:scale-95 transition"
@@ -39,4 +39,3 @@ export default function CatalogPage() {
     </main>
   );
 }
-

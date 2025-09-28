@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
@@ -7,7 +7,7 @@ import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
 
-// GET /api/users → lista (no expone password_hash)
+// GET /api/users — lista (no expone password_hash)
 router.get('/', requireAuth, requireRole(Role.ADMIN), async (_req, res, next) => {
   try {
     const users = await prisma.user.findMany({
@@ -20,7 +20,7 @@ router.get('/', requireAuth, requireRole(Role.ADMIN), async (_req, res, next) =>
   }
 });
 
-// POST /api/users → crea usuario básico
+// POST /api/users — crea usuario básico
 const createUserSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
