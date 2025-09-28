@@ -1,4 +1,4 @@
-# 🛒 E-commerce Pyme — Gestión de productos y ventas
+# E-commerce Pyme — Gestión de productos y ventas
 
 Proyecto académico para construir un sistema **e-commerce local** orientado a una **pyme de venta de artículos de computación**.  
 Incluye **backend, frontend y base de datos** con funcionalidades completas de catálogo, carrito, checkout, reportes y gestión administrativa.
@@ -62,8 +62,33 @@ El sistema busca profesionalizar la gestión de la pyme mediante:
 ### Autenticación
 - Login → API emite JWT → Front guarda sesión (cookie HttpOnly o memoria segura) → rutas privadas habilitadas.
 
-### Checkout y pago simulado
-- Carrito → confirma → API valida stock → crea `order` + `order_items` (transacción) → `payment` simulado → `status=paid` → decrementa stock.
+## Cómo probar (demo local)
+
+Requisitos:
+- Node.js 18+
+- PostgreSQL local 
+
+1) Backend 
+- Ejecutar en una terminal dentro del proyecto:
+cd backend
+npm run demo
+
+2) Frontend 
+- Abrir y ejecutar otra terminal dentro del proyecto:
+cd frontend
+npm run dev
+
+3) Flujos
+- Catálogo público (home): http://localhost:5173/
+- Login: http://localhost:5173/login
+  - Credenciales demo: cliente@demo.com / secret12
+  - Tras iniciar sesión, el header mostrará “Cerrar sesión”
+- Área privada: http://localhost:5173/admin (requiere sesión)
+
+Notas:
+- CORS está habilitado para http://localhost:5173 en desarrollo.
+- Si el carrusel no muestra imágenes, agrega opcionalmente banners en rontend/public/banners/.
+Los productos mostrados son solo una demo de lo que se mostrara al final
 
 ### Backoffice (admin/vendedor)
 - CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
