@@ -84,9 +84,10 @@ Requisitos:
 
 2. Frontend
 
-- Abrir y ejecutar otra terminal dentro del proyecto:
+- Abrir otra terminal dentro del proyecto y ejecutar:
   cd frontend
   npm run dev
+  (el script copia .env si falta, instala dependencias y levanta Vite)
 
 3. Flujos
 
@@ -105,3 +106,4 @@ Notas:
 ### Backoffice (admin/vendedor)
 
 - CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
+
