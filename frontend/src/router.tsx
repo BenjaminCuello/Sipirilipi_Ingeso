@@ -4,6 +4,7 @@ import PublicLayout from "./layouts/PublicLayout";
 import CatalogPage from "./pages/CatalogPage";
 import PublicCatalogPage from "./pages/PublicCatalogPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <PublicCatalogPage /> },
       { path: "/login", element: <LoginPage /> },
+      { path: "/registro", element: <RegisterPage /> },
     ],
   },
   {
