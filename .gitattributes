@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# Si algun dia ponemos scripts .bat en Windows, se dejan con CRLF:
+*.bat text eol=crlf
