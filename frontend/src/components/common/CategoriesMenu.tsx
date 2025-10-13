@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
@@ -74,4 +74,3 @@ export function CategoriesMenu() {
     </div>
   );
 }
-

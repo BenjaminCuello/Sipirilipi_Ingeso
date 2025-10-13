@@ -99,7 +99,7 @@ export function LoginSheet({ open, onClose, anchorRef }: Props) {
       </form>
 
       <div className="mt-4 border-t border-border pt-3 text-sm">
-        ¿No tienes cuenta? <a href="/cuenta/registro" className="text-primary hover:underline">Registrarme</a>
+        ¿No tienes cuenta? <a href="/registro" className="text-primary hover:underline">Registrarme</a>
       </div>
     </div>
   );
