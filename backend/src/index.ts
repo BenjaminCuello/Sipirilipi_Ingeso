@@ -14,10 +14,13 @@ app.use(express.json());
 // Seguridad básica: Helmet
 app.use(helmet());
 
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const corsCredentials = process.env.CORS_CREDENTIALS === 'true';
 // CORS para frontend local
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: corsOrigin,
+    credentials: corsCredentials,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })

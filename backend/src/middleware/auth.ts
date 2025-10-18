@@ -21,9 +21,20 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
       return res.status(401).json({ error: 'Autorización requerida' });
     }
     const token = match[1];
-    const decoded = jwt.verify(token, secret) as AuthPayload;
-    res.locals.user = decoded;
-    return next();
+
+    try {
+        const decoded = jwt.verify(token, secret) as unknown as AuthPayload;
+        res.locals.user = decoded;
+        return next();
+    } catch (jwtError : any) {
+        if (jwtError.name === 'TokenExpireError'){
+            return res.status(401).json({error: 'Sesion expirado', code: 'token_expired'});
+        } else if (jwtError.name === 'JsonWebTokenError'){
+            return res.status(401).json({error: 'Token invalido', code: 'invalid_token'});
+        } else {
+            return res.status(401).json({error: 'Error de autenficacion', code: 'auth_error'})
+        }
+    }
   } catch (_err) {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
