@@ -26,6 +26,7 @@ export const api = {
   getProduct: (id: number) => request<Product>(`/products/${id}`),
   createProduct: (p: Product) => request<Product>('/products', { method: 'POST', body: JSON.stringify(p) }),
   updateProduct: (id: number, p: Product) => request<Product>(`/products/${id}`, { method: 'PUT', body: JSON.stringify(p) }),
+  deleteProduct: (id: number) => request<void>(`/products/${id}`, { method: 'DELETE' }),
 };
 
 export default api;

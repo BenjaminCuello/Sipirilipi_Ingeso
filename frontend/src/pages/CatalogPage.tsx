@@ -1,4 +1,4 @@
-import { logout } from "../lib/auth";
+import { logout, hasRole } from "../lib/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../lib/api";
@@ -20,7 +20,17 @@ export default function CatalogPage() {
     <main className="min-h-dvh bg-slate-50">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold">Catálogo</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold">Catálogo</h1>
+            {hasRole("ADMIN", "SELLER") && (
+              <button
+                onClick={() => navigate("/panel/products")}
+                className="text-sm text-indigo-600 hover:text-indigo-700"
+              >
+                Ir al panel →
+              </button>
+            )}
+          </div>
           <button
             onClick={handleLogout}
             className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-100 active:scale-95 transition"

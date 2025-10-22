@@ -6,13 +6,16 @@ import ProductFormPage from "./pages/ProductFormPage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
+import SellerProductsPage from "./pages/SellerProductsPage";
+
 export const router = createBrowserRouter([
   {
     element: <ProtectedLayout />,
     children: [
       { path: "/", element: <CatalogPage /> }, // privada
-      { path: "/products/new", element: <ProductFormPage /> },
-      { path: "/products/:id/edit", element: <ProductFormPage /> },
+      { path: "/panel/products", element: <SellerProductsPage /> }, // panel vendedor
+      { path: "/panel/products/new", element: <ProductFormPage /> },
+      { path: "/panel/products/:id/edit", element: <ProductFormPage /> },
     ],
   },
   {
