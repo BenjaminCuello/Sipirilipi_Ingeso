@@ -25,7 +25,14 @@ const createUserSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['ADMIN', 'SELLER', 'CUSTOMER']).optional(),
+});
+
+const updateRoleSchema = z.object({
+  role: z.nativeEnum(Role),
+});
+
+const userIdParamSchema = z.object({
+  id: z.coerce.number().int().min(1),
 });
 
 router.post('/', async (req, res, next) => {
@@ -39,7 +46,7 @@ router.post('/', async (req, res, next) => {
         name: data.name,
         email,
         password_hash,
-        role: (data.role ?? 'CUSTOMER') as Role,
+        role: Role.CUSTOMER,
       },
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     });
@@ -52,7 +59,30 @@ router.post('/', async (req, res, next) => {
     }
     // Errores de validación Zod
     if (err?.issues) {
-      return res.status(400).json({ error: 'Datos inválidos', details: err.issues });
+      return res.status(400).json({ error: 'Datos invalidos', details: err.issues });
+    }
+    next(err);
+  }
+});
+
+router.put('/:id/role', requireAuth, requireRole(Role.ADMIN), async (req, res, next) => {
+  try {
+    const { id } = userIdParamSchema.parse(req.params);
+    const { role } = updateRoleSchema.parse(req.body);
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, name: true, email: true, role: true, updatedAt: true },
+    });
+
+    res.json(user);
+  } catch (err: any) {
+    if (err?.issues) {
+      return res.status(400).json({ error: 'Datos invalidos', details: err.issues });
+    }
+    if (err?.code === 'P2025') {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
     next(err);
   }

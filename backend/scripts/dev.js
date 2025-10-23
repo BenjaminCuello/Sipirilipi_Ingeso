@@ -11,6 +11,7 @@ const NODE_MODULES = path.join(ROOT, 'node_modules')
 
 const NPM = 'npm'
 const NPX = 'npx'
+const NPM_SPAWN = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 
 function run(cmd, args, opts = {}) {
   const bin = process.platform === 'win32' ? `${cmd}.cmd` : cmd
@@ -40,7 +41,11 @@ function main() {
 
   // start server with ts-node-dev
   console.log('[dev] starting server')
-  const child = spawn(NPM, ['run', 'start'], { stdio: 'inherit', cwd: ROOT })
+  const child = spawn(NPM_SPAWN, ['run', 'start'], {
+    stdio: 'inherit',
+    cwd: ROOT,
+    shell: process.platform === 'win32',
+  })
   child.on('exit', (code) => process.exit(code ?? 0))
 }
 
