@@ -1,13 +1,22 @@
+# dependencias y builds
 node_modules/
 dist/
+build/
+coverage/
+
+# variables de entorno
 .env
 .env.local
-*.log
-package-lock.json
-/.idea
-/.vscode
-node_modules
-# Keep environment variables out of version control
-.env
 
-/generated/prisma
+# editores
+.idea/
+.vscode/
+
+# logs
+*.log
+
+# prisma generado (si alguna vez apareció)
+generated/
+generated/prisma/
+src/generated/
+src/generated/prisma/
