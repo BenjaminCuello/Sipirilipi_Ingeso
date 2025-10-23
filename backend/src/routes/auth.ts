@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import type { Role } from '@prisma/client';
 import { loginLimiter } from '../middleware/rateLimiters';
-import {requireAuth} from "../middleware/auth";
 
 const router = Router();
 
@@ -34,11 +33,11 @@ router.post('/login', loginLimiter, async (req, res, next) => {
       return res.status(500).json({ error: 'Falta configuración del servidor' });
     }
 
-      const token = jwt.sign(
-          { sub: user.id, role: user.role as Role },
-          secret,
-          { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
-      );
+    const token = jwt.sign(
+      { sub: user.id, role: user.role as Role },
+      secret,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } as jwt.SignOptions
+    );
 
     return res.json({
       token,
@@ -50,21 +49,6 @@ router.post('/login', loginLimiter, async (req, res, next) => {
     }
     next(err);
   }
-});
-router.get('/me', requireAuth, async (req, res, next) => {
-    try {
-        const userId = res.locals.user.sub;
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { id: true, name: true, email: true, role: true },
-        });
-        if (!user) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        res.json(user);
-    }catch (err){
-        next(err);
-    }
 });
 
 export default router;
