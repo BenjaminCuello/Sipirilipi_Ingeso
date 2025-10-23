@@ -1,5 +1,22 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# dependencias y builds
+node_modules/
+dist/
+build/
+coverage/
 
-/src/generated/prisma
+# variables de entorno
+.env
+.env.local
+
+# editores
+.idea/
+.vscode/
+
+# logs
+*.log
+
+# prisma generado (si alguna vez apareció)
+generated/
+generated/prisma/
+src/generated/
+src/generated/prisma/

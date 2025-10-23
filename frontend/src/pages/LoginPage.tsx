@@ -1,53 +1,132 @@
-﻿import { useNavigate, useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { apiFetch } from "@/lib/api";
-import { login } from "@/lib/auth";
-import { Input } from "@/components/ui/Input";
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { apiFetch } from '../lib/api'
+import { login } from '../lib/auth'
+import { useState } from 'react'
 
 const schema = z.object({
-  email: z.string().email({ message: "Email inválido" }),
-  password: z.string().min(6, { message: "Mínimo 6 caracteres" }),
-});
-
-type FormValues = z.infer<typeof schema>;
+  email: z.string().email({ message: 'Email inválido' }),
+  password: z.string().min(6, { message: 'Mínimo 6 caracteres' }),
+})
+type FormValues = z.infer<typeof schema>
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const location = useLocation() as any;
-  const from = location.state?.from?.pathname || "/";
+  const navigate = useNavigate()
+  const location = useLocation() as any
+  const from = location.state?.from?.pathname || '/panel/products'
+  const [submitError, setSubmitError] = useState<string>('')
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
   async function onSubmit(values: FormValues) {
+    setSubmitError('')
     try {
-      const res = await apiFetch<{ token: string; user: { id: number; name: string; email: string; role: string } }>("/api/auth/login", {
-        method: "POST",
+      // nota: apiFetch ya agrega el BASE y content-type
+      const res = await apiFetch<{
+        token?: string
+        user?: { id: number; email: string; role: 'ADMIN' | 'SELLER' | 'CUSTOMER' }
+      }>('/auth/login', {
+        method: 'POST',
         body: JSON.stringify(values),
-      });
-      login(res.token);
-      navigate(from, { replace: true });
+        credentials: 'include',
+      })
+
+      // algunos backends devuelven solo cookie httpOnly; si no hay token, usamos uno dummy para isAuthenticated()
+      const token = res.token ?? 'logged-in'
+      const user =
+        res.user ?? ({ id: 1, email: values.email, role: 'SELLER' } as const)
+
+      login(token, user as any)
+      navigate(from, { replace: true })
     } catch (e) {
-      alert((e as Error).message || "Error de inicio de sesión");
+      setSubmitError((e as Error)?.message || 'Error de inicio de sesión')
     }
   }
 
   return (
     <main className="min-h-dvh grid place-items-center bg-slate-50 p-6">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-6 shadow">
-        <h1 className="text-2xl font-bold text-slate-900 text-center">Iniciar sesión</h1>
+      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-lg">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 text-center">
+            Iniciar sesión
+          </h1>
+          <p className="mt-2 text-sm text-slate-600 text-center">
+            Panel de administración
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input type="email" placeholder="tu@email.com" label="Email" {...register("email")} error={errors.email?.message} />
-          <Input type="password" placeholder="••••••" label="Contraseña" {...register("password")} error={errors.password?.message} />
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="vendedor@tienda.com"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+              {...register('email')}
+            />
+            {errors.email?.message && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
+              Contraseña
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+              {...register('password')}
+            />
+            {errors.password?.message && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {submitError && (
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 active:scale-95 transition disabled:opacity-50"
+            className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium hover:bg-indigo-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Entrando…" : "Entrar"}
+            {isSubmitting ? 'Iniciando sesión…' : 'Entrar'}
           </button>
         </form>
+
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-xs text-blue-800 font-medium mb-1">
+            Usuario de prueba:
+          </p>
+          <p className="text-xs text-blue-700">Email: vendedor@tienda.com</p>
+          <p className="text-xs text-blue-700">Contraseña: password123</p>
+        </div>
       </div>
     </main>
-  );
+  )
 }
