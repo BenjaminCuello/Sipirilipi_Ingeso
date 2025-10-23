@@ -1,0 +1,222 @@
+# Guía de Testing - Endpoints de Productos
+
+Esta guía describe los escenarios de prueba para los endpoints de gestión de productos.
+
+## Herramientas Recomendadas
+
+Para realizar el testing manual, puedes utilizar cualquiera de estas herramientas:
+- Postman
+- cURL (Terminal)
+- Thunder Client (Extensión de VS Code)
+- Insomnia
+
+## 1. Testing de PUT /products/:id
+
+### Escenario 1: Actualizar solo el nombre
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/1 \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Mouse Logitech G305 Inalámbrico"}'
+```
+
+**Respuesta esperada (200 OK):**
+```json
+{
+  "id": 1,
+  "name": "Mouse Logitech G305 Inalámbrico",
+  "price_cents": 19990,
+  "stock": 25,
+  "is_active": true,
+  "createdAt": "2025-10-22T20:00:00.000Z",
+  "updatedAt": "2025-10-22T23:28:07.000Z"
+}
+```
+
+### Escenario 2: Actualizar múltiples campos
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/2 \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"price_cents": 27990, "stock": 20, "is_active": true}'
+```
+
+**Respuesta esperada (200 OK):** Producto con los campos actualizados
+
+### Escenario 3: Intentar actualizar con datos inválidos
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/3 \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"price_cents": -100}'
+```
+
+**Respuesta esperada (400 Bad Request):**
+```json
+{
+  "error": "Datos inválidos",
+  "details": [
+    {
+      "code": "too_small",
+      "minimum": 0,
+      "type": "number",
+      "inclusive": true,
+      "path": ["price_cents"],
+      "message": "El valor debe ser mayor o igual a 0"
+    }
+  ]
+}
+```
+
+### Escenario 4: Intentar actualizar un producto inexistente
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/9999 \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Producto que no existe"}'
+```
+
+**Respuesta esperada (404 Not Found):**
+```json
+{
+  "error": "Producto no encontrado"
+}
+```
+
+## 2. Testing de GET /products con Paginación y Orden
+
+### Escenario 1: Listar con paginación básica
+
+**Petición:**
+```bash
+curl "http://localhost:3000/api/products?page=1&limit=5"
+```
+
+**Respuesta esperada (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Mouse Logitech G203",
+      "price_cents": 19990,
+      "stock": 25,
+      "is_active": true,
+      "createdAt": "2025-10-22T20:00:00.000Z",
+      "updatedAt": "2025-10-22T20:00:00.000Z"
+    },
+    // ... más productos (5 en total)
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 12,
+    "totalPages": 3,
+    "sortBy": "id",
+    "order": "asc"
+  }
+}
+```
+
+### Escenario 2: Ordenar por precio ascendente
+
+**Petición:**
+```bash
+curl "http://localhost:3000/api/products?sortBy=price_cents&order=asc"
+```
+
+**Respuesta esperada (200 OK):** Productos ordenados del más barato al más caro
+
+### Escenario 3: Ordenar por fecha de creación descendente
+
+**Petición:**
+```bash
+curl "http://localhost:3000/api/products?sortBy=createdAt&order=desc"
+```
+
+**Respuesta esperada (200 OK):** Productos más recientes primero
+
+### Escenario 4: Combinar paginación y orden
+
+**Petición:**
+```bash
+curl "http://localhost:3000/api/products?page=2&limit=10&sortBy=price_cents&order=desc"
+```
+
+**Respuesta esperada (200 OK):** Segunda página con productos ordenados del más caro al más barato
+
+## 3. Verificación de Coherencia en las Respuestas
+
+### Estructura de datos
+- Verifica que los campos devueltos por GET y PUT sean idénticos al formato de POST
+- Todos deben incluir: `id`, `name`, `price_cents`, `stock`, `is_active`, `createdAt`, `updatedAt`
+
+### Formato de errores
+- Errores de validación siempre deben tener: `error` y `details`
+- Errores de no encontrado siempre deben tener: `error` con mensaje "Producto no encontrado"
+
+### Códigos HTTP
+| Código | Uso |
+|--------|-----|
+| 200 | GET y PUT exitosos |
+| 201 | POST exitoso |
+| 204 | DELETE exitoso |
+| 400 | Errores de validación |
+| 401 | Errores de autenticación |
+| 403 | Errores de permisos |
+| 404 | Recursos no encontrados |
+
+## 4. Testing de Permisos
+
+### Sin autenticación
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Prueba sin autenticación"}'
+```
+
+**Respuesta esperada (401 Unauthorized):**
+```json
+{
+  "error": "Autorización requerida"
+}
+```
+
+### Con usuario CUSTOMER (sin permisos suficientes)
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/1 \
+  -H "Authorization: Bearer TOKEN_DE_CUSTOMER" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Prueba con customer"}'
+```
+
+**Respuesta esperada (403 Forbidden):**
+```json
+{
+  "error": "Prohibido"
+}
+```
+
+### Con usuario ADMIN o SELLER (con permisos)
+
+**Petición:**
+```bash
+curl -X PUT http://localhost:3000/api/products/1 \
+  -H "Authorization: Bearer TOKEN_DE_ADMIN_O_SELLER" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Prueba con permisos correctos"}'
+```
+
+**Respuesta esperada (200 OK):** Producto actualizado correctamente
