@@ -2,110 +2,78 @@
 
 ### Requisitos
 
-- Node.js 18+
-- PostgreSQL accesible con la cadena de conexión de `.env`
+- Node.js 18 o superior
+- PostgreSQL accesible con la cadena de conexion definida en `.env`
 
-### Scripts útiles
+### Scripts utiles
 
-- `npm run dev` &rarr; Ejecuta el entorno de desarrollo (instala dependencias si faltan, corre migraciones y levanta el server con recarga).
-- `npm run demo` &rarr; Prepara un entorno demo (seed incluido) y levanta el server.
-- `npm run build` &rarr; Compila a JavaScript (salida en `dist/`).
-- `npm run start` &rarr; Arranca el servidor con `ts-node-dev` (requiere haber instalado dependencias previamente).
+- `npm run dev`: prepara el entorno (instala dependencias, corre migraciones) y levanta el servidor en modo desarrollo.
+- `npm run start`: ejecuta la API con `ts-node-dev` asumiendo que las dependencias ya estan instaladas.
+- `npm run demo`: idem `dev` pero incluye el seed de datos de ejemplo.
+- `npm run build`: transpila TypeScript a `dist/`.
 
-### Flujos implementados en este sprint
+### Endpoints clave – Sprint 2
 
-#### Registro público (rol forzado)
+#### Autenticacion
+
+- **POST `/api/auth/login`**  
+  Valida credenciales, genera JWT (con expiracion configurable via `JWT_EXPIRES_IN`) y devuelve `{ token, user }`.
+- **GET `/api/auth/me`**  
+  Requiere `Authorization: Bearer <token>`. Retorna `{ id, name, email, role }` del usuario autenticado.
+
+#### Usuarios
 
 - **POST `/api/users`**  
-  Crea una cuenta de cliente. El backend fuerza siempre el rol `CUSTOMER`, ignorando cualquier valor `role` que se envíe.  
-  **Request**
-  ```json
-  {
-    "name": "Cliente Demo",
-    "email": "cliente@example.com",
-    "password": "secreto123"
-  }
-  ```
-  **Response 201**
-  ```json
-  {
-    "id": 12,
-    "name": "Cliente Demo",
-    "email": "cliente@example.com",
-    "role": "CUSTOMER",
-    "createdAt": "2025-10-16T19:16:08.372Z"
-  }
-  ```
-
-#### Administración de roles (solo admin)
-
+  Registro publico. Siempre guarda el rol `CUSTOMER`, ignorando cualquier `role` recibido.
 - **PUT `/api/users/:id/role`**  
-  Cambia el rol de un usuario. Requiere header `Authorization: Bearer <token>` con un usuario `ADMIN`.  
-  Roles permitidos: `ADMIN`, `SELLER`, `CUSTOMER`.  
-  **Request**
-  ```json
-  {
-    "role": "SELLER"
-  }
-  ```
-  **Response 200**
-  ```json
-  {
-    "id": 7,
-    "name": "Vendedor",
-    "email": "seller@example.com",
-    "role": "SELLER",
-    "updatedAt": "2025-10-16T19:18:26.966Z"
-  }
-  ```
+  Requiere rol `ADMIN`. Permite asignar `ADMIN`, `SELLER` o `CUSTOMER`.
 
-#### Gestión de productos (admin | seller)
+#### Productos
 
 - **GET `/api/products`**  
-  Catálogo público paginado. Parámetros: `page` (1 por defecto) y `limit` (10 por defecto, máximo 100). Solo devuelve productos activos.
-
+  Lista paginada. Query params:
+  - `page` (default 1)  
+  - `limit` (default 10, max 100)  
+  - `sortBy` (id, name, price_cents, createdAt)  
+  - `order` (asc|desc)  
+  - `includeInactive` (true|false)  
+  Devuelve productos activos salvo que `includeInactive=true`. Cada item incluye `price_cents`/`is_active` y los alias `price`/`isActive` para el panel.
+- **GET `/api/products/:id`**  
+  Requiere `ADMIN` o `SELLER`. Devuelve el detalle completo (mismo shape que la lista).
 - **POST `/api/products`**  
-  Crea un producto. Requiere `ADMIN` o `SELLER`. Valida que `name` no sea vacío, `price_cents` y `stock` sean enteros mayores o iguales a 0 e `is_active` opcional (por defecto `true`).  
-  **Request**
-  ```json
-  {
-    "name": "Mouse G203",
-    "price_cents": 19990,
-    "stock": 25,
-    "is_active": true
-  }
-  ```
-  **Response 201**
-  ```json
-  {
-    "id": 13,
-    "name": "Mouse G203",
-    "price_cents": 19990,
-    "stock": 25,
-    "is_active": true,
-    "createdAt": "2025-10-16T19:18:46.903Z",
-    "updatedAt": "2025-10-16T19:18:46.903Z"
-  }
-  ```
-
+  Requiere `ADMIN` o `SELLER`. Valida `name`, `stock >= 0` y `price` (o `price_cents`). Responde `201` con el producto creado.
+- **PUT `/api/products/:id`**  
+  Requiere `ADMIN` o `SELLER`. Actualiza nombre, precio, stock e `is_active`.
 - **DELETE `/api/products/:id`**  
-  Elimina un producto. Requiere `ADMIN` o `SELLER`. Responde `204 No Content`. Si el producto no existe, devuelve `404`.
+  Requiere `ADMIN` o `SELLER`. Responde `204` si elimina; `404` si el ID no existe.
+
+> Los scripts de seed (`scripts/seed.js` o `src/seed.ts`) crean los usuarios `cliente@demo.com` (CUSTOMER) y `vendedor@tienda.com` (SELLER) con contraseña `secret12` y `password123` respectivamente.
 
 ### Pruebas manuales sugeridas
 
-1. **Login admin**  
-   `POST /api/auth/login` con credenciales de un `ADMIN` (ejemplo de demo: `cliente@demo.com / secret12`). Copiar el token JWT.
+1. **Login como admin**  
+   `POST /api/auth/login` con `cliente@demo.com / secret12`. Guardar el `token`.
+2. **Consultar `/auth/me`**  
+   `GET /api/auth/me` con `Authorization: Bearer <token>` para confirmar los datos basicos.
+3. **Registro publico**  
+   `POST /api/users` sin token. Revisar que el nuevo usuario tenga rol `CUSTOMER`.
+4. **Cambiar rol**  
+   `PUT /api/users/:id/role` con token admin. Probar que sin token retorna `401` y con rol `CUSTOMER` devuelve `403`.
+5. **Crear producto**  
+   `POST /api/products` con token `ADMIN`/`SELLER`. Confirmar `201` y que el objeto incluya los alias `price`/`isActive`.
+6. **Editar producto**  
+   `PUT /api/products/:id` modificando nombre/stock/estado. Validar que `GET /api/products/:id` refleja los cambios.
+7. **Eliminar producto**  
+   `DELETE /api/products/:id` con token valido. Repetir con un ID inexistente para comprobar el `404`.
 
-2. **Registro público**  
-   `POST /api/users` sin header de autorización. Verificar en la base o con `GET /api/users` (usando token admin) que el rol siempre es `CUSTOMER`.
+### Variables de entorno relevantes
 
-3. **Cambio de rol**  
-   `PUT /api/users/:id/role` con token admin y cuerpo `{ "role": "SELLER" }` o el que corresponda. Sin token → `401`. Con token de `CUSTOMER` → `403`.
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pyme"
+JWT_SECRET="mysecret"
+JWT_EXPIRES_IN="1h"
+CORS_ORIGIN="http://localhost:5173"
+CORS_CREDENTIALS="false"
+```
 
-4. **Crear producto**  
-   `POST /api/products` con token `ADMIN`/`SELLER`. Validar que responda 201. Repetir sin token para comprobar `401/403`.
-
-5. **Eliminar producto**  
-   `DELETE /api/products/:id` con token `ADMIN`/`SELLER`. Respuesta esperada `204`. Si el id no existe, `404`.
-
-> Se pueden utilizar los comandos `curl` / `Invoke-RestMethod` compartidos en el equipo para reproducir los casos anteriores.
+`CORS_ORIGIN` acepta lista separada por comas y `CORS_CREDENTIALS` habilita o no el envio de cookies encabezados sensibles.

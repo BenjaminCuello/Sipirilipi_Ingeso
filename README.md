@@ -80,7 +80,7 @@ Requisitos:
 
 - Ejecutar en una terminal dentro del proyecto:
   cd backend
-  npm run demo
+  npm run dev
 
 2. Frontend
 
@@ -106,4 +106,3 @@ Notas:
 ### Backoffice (admin/vendedor)
 
 - CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
-

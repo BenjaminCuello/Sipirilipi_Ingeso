@@ -17,12 +17,14 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(helmet())
 
-// cors configurable por env y con defaults utiles
-// CORS_ORIGIN puede venir como lista separada por coma
-const envOrigins = process.env.CORS_ORIGIN?.split(',').map(s => s.trim()).filter(Boolean) ?? []
+// CORS configurable por env (soporta lista separada por coma)
+const envOrigins =
+  process.env.CORS_ORIGIN?.split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean) ?? []
 const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174']
 const originList = envOrigins.length > 0 ? envOrigins : defaultOrigins
-const corsCredentials = process.env.CORS_CREDENTIALS === 'true' || true
+const corsCredentials = process.env.CORS_CREDENTIALS === 'true'
 
 app.use(
   cors({

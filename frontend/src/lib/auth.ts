@@ -12,8 +12,8 @@ export const TOKEN_KEY = 'token'
 export const USER_KEY = 'user'
 
 // helpers de lectura
-export const isAuthenticated = () => Boolean(localStorage.getItem(TOKEN_KEY))
-
+export const getToken = () => localStorage.getItem(TOKEN_KEY)
+export const isAuthenticated = () => Boolean(getToken())
 export const getUser = (): User | null => {
   const data = localStorage.getItem(USER_KEY)
   return data ? (JSON.parse(data) as User) : null
@@ -24,12 +24,7 @@ export const hasRole = (...roles: User['role'][]) => {
   return user ? roles.includes(user.role) : false
 }
 
-// login flexible
-// si no pasas nada, usa valores demo
-export const login = (
-  token: string = 'demo-token',
-  user: User = { id: 1, email: 'vendedor@demo.com', role: 'SELLER' }
-) => {
+export const login = (token: string, user: User) => {
   localStorage.setItem(TOKEN_KEY, token)
   localStorage.setItem(USER_KEY, JSON.stringify(user))
 }

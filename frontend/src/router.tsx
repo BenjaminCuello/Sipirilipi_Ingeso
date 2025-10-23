@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import NotFoundPage from './pages/NotFoundPage'
 import SellerProductsPage from './pages/SellerProductsPage'
+import RecoverPasswordPage from './pages/RecoverPasswordPage'
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: '/', element: <PublicCatalogPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/registro', element: <RegisterPage /> },
+      { path: '/recuperar', element: <RecoverPasswordPage /> },
     ],
   },
   {

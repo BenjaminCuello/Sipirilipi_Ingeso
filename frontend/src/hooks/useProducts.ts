@@ -19,7 +19,7 @@ export type ProductsResponse = {
 export function useProducts(page = 1, limit = 12) {
   return useQuery({
     queryKey: ["products", page, limit],
-    queryFn: () => apiFetch<ProductsResponse>(`/api/products?page=${page}&limit=${limit}`),
+    queryFn: () => apiFetch<ProductsResponse>(`/products?page=${page}&limit=${limit}`),
     staleTime: 1000 * 30,
     keepPreviousData: true,
   });
@@ -30,4 +30,3 @@ export function formatPrice(cents: number) {
     cents,
   );
 }
-

@@ -39,6 +39,14 @@ function main() {
     console.warn('[dev] prisma migrate dev failed, check DATABASE_URL in .env')
   }
 
+  // seed demo data (idempotente)
+  try {
+    console.log('[dev] seeding demo data')
+    run(process.execPath, ['scripts/seed.js'])
+  } catch (e) {
+    console.warn('[dev] seed failed (continuando):', e.message ?? e)
+  }
+
   // start server with ts-node-dev
   console.log('[dev] starting server')
   const child = spawn(NPM_SPAWN, ['run', 'start'], {
