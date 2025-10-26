@@ -106,3 +106,69 @@ Notas:
 ### Backoffice (admin/vendedor)
 
 - CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
+
+---
+
+## Ejecución con Docker
+
+Requisitos:
+
+- Docker Desktop (o motor Docker) + Docker Compose v2
+
+Pasos:
+
+```
+docker-compose up --build
+```
+
+Servicios expuestos:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:4000/api
+- PostgreSQL: localhost:5432 (usuario `postgres`, password `postgres`, base `pyme`)
+
+El contenedor del backend ejecuta automáticamente las migraciones (`prisma migrate dev`) y el seed con usuarios demo:
+
+- Cliente: `cliente@demo.com / secret12`
+- Vendedor: `vendedor@tienda.com / password123`
+
+Para detener todo:
+
+```
+docker-compose down
+```
+
+Si quieres comenzar desde cero (reiniciar datos):
+
+```
+docker-compose down -v
+```
+
+
+### Desarrollo con hot reload (Docker)
+
+Si quieres trabajar desde Docker con recarga en vivo (sin instalar Node/Postgres localmente), usa:
+
+```
+docker compose -f docker-compose.dev.yml up --build
+```
+
+- Frontend: expuesto en http://localhost:5173 con Vite dev server (volumen sobre `./frontend`).
+- Backend: expuesto en http://localhost:4000 corriendo `npm run dev` (volumen sobre `./backend`).
+- Base de datos: Postgres en el contenedor `db`.
+
+Los cambios en el c�digo se reflejan inmediatamente.
+
+### Resumen para el equipo
+
+1. Clonar el repo.
+2. Elegir una de estas opciones:
+   - **Local**: instalar dependencias (`npm install`) y usar `npm run dev` en backend/frontend con PostgreSQL local.
+   - **Docker demo**: `docker compose up --build` para la versi�n compilada lista para demo.
+   - **Docker dev**: `docker compose -f docker-compose.dev.yml up --build` para trabajar con hot reload sin dependencias locales.
+3. Credenciales demo:
+   - Cliente: `cliente@demo.com / secret12`
+   - Vendedor: `vendedor@tienda.com / password123`
+
+Con cualquiera de los modos, el backend ejecuta migraciones y seed autom�ticamente al iniciar.
+

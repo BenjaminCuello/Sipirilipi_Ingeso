@@ -20,7 +20,11 @@ function run(cmd, args, opts = {}) {
 
 function main() {
   // copy .env if missing
-  if (!fs.existsSync(ENV) && fs.existsSync(ENV_EXAMPLE)) {
+  if (
+    !process.env.SKIP_ENV_COPY &&
+    !fs.existsSync(ENV) &&
+    fs.existsSync(ENV_EXAMPLE)
+  ) {
     fs.copyFileSync(ENV_EXAMPLE, ENV)
     console.log('[dev] created .env from .env.example')
   }
