@@ -1,15 +1,16 @@
 ﻿"use client";
 import { ProductCard } from "./ProductCard";
 import { useState } from "react";
-import { useProducts, formatPrice } from "@/hooks/useProducts";
+import { useProducts, type Product, type ProductsResponse } from "@/hooks/useProducts";
 
 export function ProductGrid() {
   const [page, setPage] = useState(1);
   const limit = 12;
   const { data, isLoading, isError, error, isFetching } = useProducts(page, limit);
+  const productsData: ProductsResponse | undefined = data;
 
-  const items = data?.data ?? [];
-  const totalPages = data?.pagination.totalPages ?? 1;
+  const items = productsData?.data ?? [];
+  const totalPages = productsData?.pagination.totalPages ?? 1;
 
   return (
     <section className="w-full bg-white">
@@ -23,8 +24,8 @@ export function ProductGrid() {
         )}
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((p) => (
-            <ProductCard key={p.id} title={p.name} price={formatPrice(p.price_cents)} />
+          {items.map((product: Product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
 

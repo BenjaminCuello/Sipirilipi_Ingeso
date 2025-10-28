@@ -24,7 +24,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/pyme
       JWT_SECRET: mysecret
       JWT_EXPIRES_IN: 1h
-      CORS_ORIGIN: http://localhost:5173
+      CORS_ORIGIN: http://localhost:5173,http://localhost:5174
       CORS_CREDENTIALS: "false"
       SKIP_ENV_COPY: "true"
     ports:

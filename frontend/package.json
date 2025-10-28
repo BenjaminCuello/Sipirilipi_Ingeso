@@ -22,7 +22,8 @@
     "react-hook-form": "^7.53.0",
     "@hookform/resolvers": "^3.9.0",
     "zod": "^3.23.8",
-    "lucide-react": "^0.460.0"
+    "lucide-react": "^0.460.0",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

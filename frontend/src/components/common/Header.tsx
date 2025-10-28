@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { User, ShoppingCart } from "lucide-react";
+import { User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { LoginSheet } from "@/components/auth/LoginSheet";
 import { CategoriesMenu } from "@/components/common/CategoriesMenu";
 import { isAuthenticated, logout } from "@/lib/auth";
+import { MiniCart } from "@/components/cart/MiniCart";
 
 export function Header() {
   const [openLogin, setOpenLogin] = useState(false);
@@ -77,9 +78,7 @@ export function Header() {
           )}
 
           {/* Carrito */}
-          <Link to="/carrito" className="h-10 w-10 grid place-items-center rounded-full hover:bg-white/10" aria-label="Carrito">
-            <ShoppingCart />
-          </Link>
+          <MiniCart />
         </nav>
       </div>
     </header>
