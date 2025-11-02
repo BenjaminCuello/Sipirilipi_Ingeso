@@ -7,8 +7,11 @@ export default function PublicCatalogPage() {
     <main className="min-h-dvh bg-white">
       <Header />
       <HeroCarousel />
-      <ProductGrid />
+      <section className="w-full bg-white">
+        <div className="w-full max-w-[1400px] mx-auto px-6 py-6">
+          <ProductGrid />
+        </div>
+      </section>
     </main>
   );
 }
-

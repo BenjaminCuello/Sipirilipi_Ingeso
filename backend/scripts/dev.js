@@ -38,7 +38,8 @@ function main() {
   // run prisma migrate dev
   try {
     console.log('[dev] running prisma migrate dev')
-    run(NPX, ['prisma', 'migrate', 'dev'])
+    const migrationName = 'auto'
+    run(NPX, ['prisma', 'migrate', 'dev', '--name', migrationName])
   } catch (e) {
     console.warn('[dev] prisma migrate dev failed, check DATABASE_URL in .env')
   }

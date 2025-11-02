@@ -20,3 +20,6 @@ generated/
 generated/prisma/
 src/generated/
 src/generated/prisma/
+
+uploads/
+
