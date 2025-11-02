@@ -1,12 +1,29 @@
-﻿"use client";
-import { ProductCard } from "./ProductCard";
+"use client";
+
 import { useState } from "react";
-import { useProducts, formatPrice } from "@/hooks/useProducts";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ProductCard } from "./ProductCard";
+import ProductService, { CatalogProduct } from "@/services/ProductService";
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 export function ProductGrid() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 12;
-  const { data, isLoading, isError, error, isFetching } = useProducts(page, limit);
+
+  const { data, isLoading, isError, error, isFetching } = useQuery({
+    queryKey: ["home-products", { page, limit }],
+    queryFn: () => ProductService.search({ page, limit }),
+    keepPreviousData: true,
+  });
 
   const items = data?.data ?? [];
   const totalPages = data?.pagination.totalPages ?? 1;
@@ -14,17 +31,23 @@ export function ProductGrid() {
   return (
     <section className="w-full bg-white">
       <div className="w-full max-w-[1400px] mx-auto px-6 py-6">
-        <h2 className="text-xl font-semibold mb-4">Productos</h2>
+        <h2 className="text-xl font-semibold mb-4">Productos destacados</h2>
 
-        {isLoading && <p className="text-slate-600">Cargando productos…</p>}
+        {isLoading && <p className="text-slate-600">Cargando productos...</p>}
         {isError && <p className="text-red-600">Error: {(error as Error).message}</p>}
         {!isLoading && !isError && items.length === 0 && (
-          <p className="text-slate-600">Sin productos activos.</p>
+          <p className="text-slate-600">Sin productos disponibles.</p>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((p) => (
-            <ProductCard key={p.id} title={p.name} price={formatPrice(p.price_cents)} />
+          {items.map((product: CatalogProduct) => (
+            <ProductCard
+              key={product.id}
+              title={product.name}
+              price={formatPrice(product.price)}
+              img={product.imageUrl ?? undefined}
+              onOpen={() => navigate(`/producto/${product.id}`)}
+            />
           ))}
         </div>
 
@@ -38,7 +61,7 @@ export function ProductGrid() {
               Anterior
             </button>
             <span className="text-sm text-slate-600">
-              Página {page} de {totalPages}
+              Pagina {page} de {totalPages}
             </span>
             <button
               className="h-10 px-4 rounded-lg border border-[var(--color-border)] hover:bg-slate-50 disabled:opacity-50"

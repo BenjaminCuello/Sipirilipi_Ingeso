@@ -7,6 +7,9 @@ import cookieParser from 'cookie-parser'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
 import productsRouter from './routes/products'
+import categoriesRouter from './routes/categories'
+import mediaRouter from './routes/media'
+import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
 
@@ -15,7 +18,11 @@ const app = express()
 // middlewares base
 app.use(express.json())
 app.use(cookieParser())
-app.use(helmet())
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+)
 
 // CORS configurable por env (soporta lista separada por coma)
 const envOrigins =
@@ -43,6 +50,19 @@ app.get('/api/health', (_req: Request, res: Response) => res.json({ ok: true }))
 app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/products', productsRouter)
+app.use('/api/categories', categoriesRouter)
+app.use('/api/media', mediaRouter)
+
+app.use(
+  '/uploads',
+  express.static(uploadsDir, {
+    setHeaders: res => {
+      res.setHeader('Cache-Control', 'public, max-age=604800')
+      // permitir que el frontend (localhost:5173) pueda leer recursos estaticos
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+    },
+  })
+)
 
 // manejador de errores al final
 app.use(errorHandler)
