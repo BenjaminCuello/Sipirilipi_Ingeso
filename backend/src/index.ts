@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import express, { Request, Response } from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -9,6 +9,7 @@ import authRouter from './routes/auth'
 import productsRouter from './routes/products'
 import categoriesRouter from './routes/categories'
 import mediaRouter from './routes/media'
+import cartRouter from './routes/cart'
 import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
@@ -52,6 +53,7 @@ app.use('/api/users', usersRouter)
 app.use('/api/products', productsRouter)
 app.use('/api/categories', categoriesRouter)
 app.use('/api/media', mediaRouter)
+app.use('/api/cart', cartRouter)
 
 app.use(
   '/uploads',
@@ -64,8 +66,12 @@ app.use(
   })
 )
 
-// manejador de errores al final
-app.use(errorHandler)
+// manejador de errores (con fallback por si la importación cambia)
+const fallbackErrorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err)
+  res.status(500).json({ error: 'Error interno' })
+}
+app.use(typeof errorHandler === 'function' ? errorHandler : fallbackErrorHandler)
 
 const PORT = Number(process.env.PORT ?? 4000)
 
@@ -89,6 +95,5 @@ const shutdown = async () => {
     process.exit(0)
   }
 }
-
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)

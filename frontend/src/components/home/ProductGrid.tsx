@@ -1,32 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useProducts, type Product, type ProductsResponse } from "@/hooks/useProducts";
 import { ProductCard } from "./ProductCard";
-import ProductService, { CatalogProduct } from "@/services/ProductService";
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 export function ProductGrid() {
-  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 12;
+  const { data, isLoading, isError, error, isFetching } = useProducts(page, limit);
+  const productsData: ProductsResponse | undefined = data;
 
-  const { data, isLoading, isError, error, isFetching } = useQuery({
-    queryKey: ["home-products", { page, limit }],
-    queryFn: () => ProductService.search({ page, limit }),
-    keepPreviousData: true,
-  });
-
-  const items = data?.data ?? [];
-  const totalPages = data?.pagination.totalPages ?? 1;
+  const items = productsData?.data ?? [];
+  const totalPages = productsData?.pagination.totalPages ?? 1;
 
   return (
     <section className="w-full bg-white">
@@ -40,14 +25,8 @@ export function ProductGrid() {
         )}
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((product: CatalogProduct) => (
-            <ProductCard
-              key={product.id}
-              title={product.name}
-              price={formatPrice(product.price)}
-              img={product.imageUrl ?? undefined}
-              onOpen={() => navigate(`/producto/${product.id}`)}
-            />
+          {items.map((product: Product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
 

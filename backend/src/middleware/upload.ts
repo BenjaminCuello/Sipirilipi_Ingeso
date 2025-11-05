@@ -1,6 +1,7 @@
-import multer from 'multer'
+import multer, { type FileFilterCallback } from 'multer'
 import path from 'path'
 import fs from 'fs'
+import type { Request } from 'express'
 
 const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
@@ -13,10 +14,10 @@ const maxUploadMb = Number(process.env.MAX_UPLOAD_MB ?? '5')
 const maxFileSize = Number.isFinite(maxUploadMb) && maxUploadMb > 0 ? maxUploadMb * 1024 * 1024 : 5 * 1024 * 1024
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
+  destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, uploadsDir)
   },
-  filename: (_req, file, cb) => {
+  filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const ext = path.extname(file.originalname).toLowerCase() || '.jpg'
     const baseName = path.basename(file.originalname, ext).replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-_]/g, '')
     const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`
@@ -30,7 +31,7 @@ const upload = multer({
     fileSize: maxFileSize,
     files: 10,
   },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     if (!allowedMimeTypes.has(file.mimetype)) {
       const error: any = new Error('Tipo de archivo no soportado')
       error.code = 'INVALID_MIME'

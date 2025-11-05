@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { prisma } from '../lib/prisma'
-import { requireAuth, requireRole } from '../middleware/auth'
 import { Role } from '@prisma/client'
 import { z } from 'zod'
+import { prisma } from '../lib/prisma'
+import { requireAuth, requireRole } from '../middleware/auth'
 import { slugify } from '../lib/slug'
 
 const router = Router()

@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { User, ShoppingCart, Loader2 } from "lucide-react";
+import { User, Loader2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LoginSheet } from "@/components/auth/LoginSheet";
 import { CategoriesMenu } from "@/components/common/CategoriesMenu";
 import { isAuthenticated, logout } from "@/lib/auth";
-import ProductService, { CatalogProduct } from "@/services/ProductService";
+import ProductService, { type CatalogProduct } from "@/services/ProductService";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { MiniCart } from "@/components/cart/MiniCart";
 
 type HeaderProps = {
   initialQuery?: string;
@@ -165,9 +166,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
             </div>
           )}
 
-          <Link to="/carrito" className="h-10 w-10 grid place-items-center rounded-full hover:bg-white/10" aria-label="Carrito">
-            <ShoppingCart />
-          </Link>
+          <MiniCart />
         </nav>
       </div>
     </header>

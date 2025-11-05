@@ -12,6 +12,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 // ENUM de roles
 enum Role {
   ADMIN
@@ -28,6 +29,7 @@ model User {
   role          Role     @default(CUSTOMER)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  cart          Cart?
 }
 
 // Modelo de productos
@@ -58,6 +60,7 @@ model Product {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   images      ProductImage[]
+  cartItems   CartItem[]
 }
 
 // Galeria de imagenes por producto (max 10 por producto en logica de app)
@@ -78,4 +81,27 @@ model ProductImage {
 
   @@index([productId])
   @@unique([productId, position])
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
 }
