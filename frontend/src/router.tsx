@@ -12,7 +12,6 @@ import NotFoundPage from './pages/NotFoundPage'
 import SellerProductsPage from './pages/SellerProductsPage'
 import RecoverPasswordPage from './pages/RecoverPasswordPage'
 import SearchResultsPage from './pages/SearchResultsPage'
-import ProductDetailPage from './pages/ProductDetailPage'
 
 export const router = createBrowserRouter([
   {
