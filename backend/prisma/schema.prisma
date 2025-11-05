@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,12 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ENUM de roles
 enum Role {
   ADMIN
   SELLER
   CUSTOMER
 }
 
+// Modelo de usuarios
 model User {
   id            Int      @id @default(autoincrement())
   name          String
@@ -24,24 +32,64 @@ model User {
   cart          Cart?
 }
 
+// Modelo de productos
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@unique([name])
+}
+
 model Product {
-  id          Int        @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
+  brand       String?
+  description String    @default("")
+  color       String?
   price_cents Int
-  stock       Int        @default(0)
-  is_active   Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  stock       Int       @default(0)
+  is_active   Boolean   @default(true)
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  image_url   String?
+  thumb_url   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  images      ProductImage[]
   cartItems   CartItem[]
 }
 
+// Galeria de imagenes por producto (max 10 por producto en logica de app)
+model ProductImage {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  filename     String
+  original_url String
+  thumb_url    String
+  width        Int?
+  height       Int?
+  mime         String
+  size         Int
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([productId])
+  @@unique([productId, position])
+}
+
 model Cart {
-  id        Int        @id @default(autoincrement())
-  userId    Int        @unique
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     CartItem[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CartItem {
