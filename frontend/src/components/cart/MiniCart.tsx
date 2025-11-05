@@ -145,7 +145,7 @@ export function MiniCart() {
                   className="flex-1"
                   onClick={() => {
                     setOpen(false);
-                    navigate("/cart");
+                    navigate("/carrito");
                   }}
                 >
                   Ver carrito

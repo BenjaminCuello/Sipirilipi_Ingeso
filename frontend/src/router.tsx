@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import ProtectedLayout from './layouts/ProtectedLayout'
 import PublicLayout from './layouts/PublicLayout'
 import CatalogPage from './pages/CatalogPage'
@@ -18,9 +18,10 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
   { path: '/', element: <PublicCatalogPage /> },
-  { path: '/cart', element: <CartPage /> },
   { path: '/carrito', element: <CartPage /> },
-  { path: '/product/:id', element: <ProductDetailPage /> },
+  // redirects por compatibilidad
+  { path: '/cart', element: <Navigate to="/carrito" replace /> },
+  { path: '/product/:id', element: <Navigate to="/producto/:id" replace /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/registro', element: <RegisterPage /> },
       { path: '/recuperar', element: <RecoverPasswordPage /> },

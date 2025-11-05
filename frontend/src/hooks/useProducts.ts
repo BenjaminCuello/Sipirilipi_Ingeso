@@ -7,6 +7,10 @@ export type Product = {
   price_cents: number;
   stock: number;
   is_active: boolean;
+  imageUrl?: string | null;
+  thumbUrl?: string | null;
+  image_url?: string | null;
+  thumb_url?: string | null;
   createdAt: string;
   updatedAt: string;
 };
