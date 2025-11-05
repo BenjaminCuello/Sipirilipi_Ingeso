@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import express, { Request, Response } from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -66,8 +66,12 @@ app.use(
   })
 )
 
-// manejador de errores al final
-app.use(errorHandler)
+// manejador de errores (con fallback por si la importación cambia)
+const fallbackErrorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err)
+  res.status(500).json({ error: 'Error interno' })
+}
+app.use(typeof errorHandler === 'function' ? errorHandler : fallbackErrorHandler)
 
 const PORT = Number(process.env.PORT ?? 4000)
 
