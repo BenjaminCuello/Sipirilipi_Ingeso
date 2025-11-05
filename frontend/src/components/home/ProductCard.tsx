@@ -18,7 +18,7 @@ export function ProductCard({ product, imageUrl }: Props) {
         {imageUrl ? (
           <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
         ) : (
-          <span className="text-sm text-slate-500">Imagen</span>
+          <span className="text-sm text-slate-500">Imagen no disponible</span>
         )}
       </Link>
       <div className="p-3">
@@ -36,4 +36,3 @@ export function ProductCard({ product, imageUrl }: Props) {
     </div>
   );
 }
-

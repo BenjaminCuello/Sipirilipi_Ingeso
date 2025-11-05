@@ -40,6 +40,7 @@ router.post('/', requireAuth, requireRole(Role.ADMIN, Role.SELLER), (req, res, n
 router.delete('/:filename', requireAuth, requireRole(Role.ADMIN, Role.SELLER), async (req, res, next) => {
   try {
     const filename = req.params.filename
+    // basic path traversal prevention
     if (
       filename.includes('..') ||
       filename.includes('/') ||

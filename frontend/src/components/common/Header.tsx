@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LoginSheet } from "@/components/auth/LoginSheet";
 import { CategoriesMenu } from "@/components/common/CategoriesMenu";
 import { isAuthenticated, logout } from "@/lib/auth";
-import ProductService, { CatalogProduct } from "@/services/ProductService";
+import ProductService, { type CatalogProduct } from "@/services/ProductService";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { MiniCart } from "@/components/cart/MiniCart";
 
@@ -147,7 +147,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
             >
               <div className="h-9 flex items-center justify-center gap-2">
                 <User className="text-white" size={18} />
-                <span className="text-sm font-medium">Cerrar sesión</span>
+                <span className="text-sm font-medium">Cerrar sesion</span>
               </div>
             </button>
           ) : (
@@ -158,7 +158,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
               >
                 <div className="h-9 flex items-center justify-center gap-2">
                   <User className="text-white" size={18} />
-                  <span className="text-sm font-medium">Iniciar sesión</span>
+                  <span className="text-sm font-medium">Iniciar sesion</span>
                 </div>
               </button>
 
