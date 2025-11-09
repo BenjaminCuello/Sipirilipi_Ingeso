@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import NotFoundPage from './pages/NotFoundPage'
 import SellerProductsPage from './pages/SellerProductsPage'
+import SellerDashboardPage from './pages/SellerDashboardPage'
 import RecoverPasswordPage from './pages/RecoverPasswordPage'
 import SearchResultsPage from './pages/SearchResultsPage'
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedLayout />,
     children: [
+      { path: '/panel/dashboard', element: <SellerDashboardPage /> },
       { path: '/panel/products', element: <SellerProductsPage /> },
       { path: '/panel/products/new', element: <ProductFormPage /> },
       { path: '/panel/products/:id/edit', element: <ProductFormPage /> },
