@@ -1,29 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { User, Loader2 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LoginSheet } from "@/components/auth/LoginSheet";
-import { CategoriesMenu } from "@/components/common/CategoriesMenu";
-import { isAuthenticated, logout } from "@/lib/auth";
-import ProductService, { type CatalogProduct } from "@/services/ProductService";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { MiniCart } from "@/components/cart/MiniCart";
+import { useEffect, useRef, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from '@/hooks/useSessions';
+import { User, Loader2 } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LoginSheet } from '@/components/auth/LoginSheet';
+import { CategoriesMenu } from '@/components/common/CategoriesMenu';
+import ProductService, { type CatalogProduct } from '@/services/ProductService';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { MiniCart } from '@/components/cart/MiniCart';
 
 type HeaderProps = {
   initialQuery?: string;
 };
 
-export function Header({ initialQuery = "" }: HeaderProps) {
+// Hook de mutación para Logout
+function useLogout() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const logoutFn = async () => {
+    const base = (import.meta.env.VITE_API_URL || '').toString().replace(/\/$/, '');
+    const res = await fetch(`${base}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      throw new Error('Error al cerrar sesión');
+    }
+    return res.json();
+  };
+
+  // 🟢 CORRECCIÓN 1: Sintaxis de useMutation (ahora es un objeto)
+  return useMutation({
+    mutationFn: logoutFn,
+    onSuccess: () => {
+      queryClient.setQueryData(['auth-me'], null);
+      navigate('/login', { replace: true });
+    },
+    // 🟢 CORRECCIÓN 2: Tipar el error
+    onError: (err: Error) => {
+      console.error('Error en logout:', err);
+      queryClient.setQueryData(['auth-me'], null);
+      navigate('/login', { replace: true });
+    },
+  });
+}
+
+export function Header({ initialQuery = '' }: HeaderProps) {
   const [openLogin, setOpenLogin] = useState(false);
   const [search, setSearch] = useState(initialQuery);
-  const [focused, setFocused] = useState(false);
+  const [focused, setFocused] = useState(false); // <-- Ahora se usará
   const loginAnchorRef = useRef<HTMLDivElement | null>(null);
   const inputWrapperRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const authed = isAuthenticated();
+
+  const { isAuthenticated: authed, role } = useSession();
+  const logoutMutation = useLogout();
 
   useEffect(() => {
     setSearch(initialQuery);
@@ -31,8 +66,9 @@ export function Header({ initialQuery = "" }: HeaderProps) {
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
+  // 'suggestions' y 'loadingSuggestions' ahora se usarán
   const { data: suggestions = [], isFetching: loadingSuggestions } = useQuery({
-    queryKey: ["search-suggestions", debouncedSearch],
+    queryKey: ['search-suggestions', debouncedSearch],
     queryFn: () => ProductService.suggestions(debouncedSearch.trim(), 5),
     enabled: debouncedSearch.trim().length > 1,
   });
@@ -44,8 +80,8 @@ export function Header({ initialQuery = "" }: HeaderProps) {
         setFocused(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -53,8 +89,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
   }, [location.key]);
 
   const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
+    logoutMutation.mutate();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -65,6 +100,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
     setFocused(false);
   };
 
+  // 'handleSuggestionClick' ahora se usará
   const handleSuggestionClick = (product: CatalogProduct) => {
     setFocused(false);
     setSearch(product.name);
@@ -84,13 +120,14 @@ export function Header({ initialQuery = "" }: HeaderProps) {
           <CategoriesMenu />
         </div>
 
+        {/* 🟢 CORRECCIÓN 3: Formulario restaurado (ya no está comentado) */}
         <form onSubmit={handleSubmit} className="flex-1 flex justify-center">
           <div ref={inputWrapperRef} className="relative w-full max-w-[34rem]">
             <input
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              onFocus={() => setFocused(true)}
+              onFocus={() => setFocused(true)} // <-- Usa setFocused
               placeholder="Buscar productos..."
               className="shadow-lg focus:border-2 border-gray-300 px-5 py-2 rounded-xl w-full transition-all focus:w-full outline-none bg-white text-gray-900 placeholder-gray-400"
             />
@@ -104,22 +141,22 @@ export function Header({ initialQuery = "" }: HeaderProps) {
               </svg>
             </button>
 
-            {focused && (
+            {focused && ( // <-- Usa focused
               <div className="absolute left-0 right-0 mt-2 bg-white text-gray-900 rounded-xl border border-gray-200 shadow-lg">
-                {loadingSuggestions ? (
+                {loadingSuggestions ? ( // <-- Usa loadingSuggestions
                   <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-600">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Buscando sugerencias...
                   </div>
-                ) : suggestions.length === 0 ? (
+                ) : suggestions.length === 0 ? ( // <-- Usa suggestions
                   <div className="px-4 py-3 text-sm text-gray-600">Escribe al menos dos letras para ver sugerencias.</div>
                 ) : (
                   <ul className="py-2">
-                    {suggestions.map((product) => (
+                    {suggestions.map((product) => ( // <-- Usa suggestions
                       <li key={product.id}>
                         <button
                           type="button"
-                          onClick={() => handleSuggestionClick(product)}
+                          onClick={() => handleSuggestionClick(product)} // <-- Usa handleSuggestionClick
                           className="w-full text-left px-4 py-2.5 hover:bg-gray-100 transition flex flex-col"
                         >
                           <span className="text-sm font-medium text-gray-900">{product.name}</span>
@@ -140,14 +177,40 @@ export function Header({ initialQuery = "" }: HeaderProps) {
         </form>
 
         <nav className="shrink-0 flex items-center gap-4">
+          {/* Lógica de roles (sin cambios) */}
+          {authed && role === 'vendedor' && (
+            <Link
+              to="/panel/dashboard"
+              className="hidden sm:flex h-10 px-4 items-center justify-center gap-2 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+            >
+              <span className="text-sm font-medium">Panel Vendedor</span>
+            </Link>
+          )}
+          {authed && role === 'admin' && (
+            <Link
+              to="/admin"
+              className="hidden sm:flex h-10 px-4 items-center justify-center gap-2 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+            >
+              <span className="text-sm font-medium">Panel Admin</span>
+            </Link>
+          )}
+
+          {/* Lógica Login/Logout */}
           {authed ? (
             <button
               onClick={handleLogout}
+              // 🟢 CORRECCIÓN 4: isLoading ahora es isPending
+              disabled={logoutMutation.isPending}
               className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
             >
               <div className="h-9 flex items-center justify-center gap-2">
-                <User className="text-white" size={18} />
-                <span className="text-sm font-medium">Cerrar sesion</span>
+                {/* 🟢 CORRECCIÓN 5: isLoading ahora es isPending */}
+                {logoutMutation.isPending ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <User className="text-white" size={18} />
+                )}
+                <span className="text-sm font-medium">Cerrar sesión</span>
               </div>
             </button>
           ) : (
@@ -158,7 +221,7 @@ export function Header({ initialQuery = "" }: HeaderProps) {
               >
                 <div className="h-9 flex items-center justify-center gap-2">
                   <User className="text-white" size={18} />
-                  <span className="text-sm font-medium">Iniciar sesion</span>
+                  <span className="text-sm font-medium">Iniciar sesión</span>
                 </div>
               </button>
 
