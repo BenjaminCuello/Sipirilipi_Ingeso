@@ -6,7 +6,8 @@ import { User, Loader2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LoginSheet } from "@/components/auth/LoginSheet";
 import { CategoriesMenu } from "@/components/common/CategoriesMenu";
-import { isAuthenticated, logout } from "@/lib/auth";
+import { isAuthenticated, logout, hasRole } from "@/lib/auth";
+import { useCartStore } from "@/store/cartStore";
 import ProductService, { type CatalogProduct } from "@/services/ProductService";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { MiniCart } from "@/components/cart/MiniCart";
@@ -24,10 +25,20 @@ export function Header({ initialQuery = "" }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const authed = isAuthenticated();
+  const syncFromServer = useCartStore((s) => s.syncFromServer);
+  const serverLoaded = useCartStore((s) => s.serverLoaded ?? false);
+  const canManage = hasRole("ADMIN", "SELLER");
 
   useEffect(() => {
     setSearch(initialQuery);
   }, [initialQuery]);
+
+  // sync carrito con backend si hay sesion y no se ha hecho
+  useEffect(() => {
+    if (authed && !serverLoaded) {
+      void syncFromServer();
+    }
+  }, [authed, serverLoaded, syncFromServer]);
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
@@ -141,15 +152,27 @@ export function Header({ initialQuery = "" }: HeaderProps) {
 
         <nav className="shrink-0 flex items-center gap-4">
           {authed ? (
-            <button
-              onClick={handleLogout}
-              className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-            >
-              <div className="h-9 flex items-center justify-center gap-2">
-                <User className="text-white" size={18} />
-                <span className="text-sm font-medium">Cerrar sesion</span>
-              </div>
-            </button>
+            <>
+              {canManage && (
+                <button
+                  onClick={() => navigate('/panel/products')}
+                  className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                >
+                  <div className="h-9 flex items-center justify-center gap-2">
+                    <span className="text-sm font-medium">Ir a productos</span>
+                  </div>
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+              >
+                <div className="h-9 flex items-center justify-center gap-2">
+                  <User className="text-white" size={18} />
+                  <span className="text-sm font-medium">Cerrar sesion</span>
+                </div>
+              </button>
+            </>
           ) : (
             <div className="relative" ref={loginAnchorRef}>
               <button

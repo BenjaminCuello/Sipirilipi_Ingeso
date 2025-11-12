@@ -80,7 +80,7 @@ export default function ProductDetailPage() {
               <div>
                 <p className="text-sm text-slate-600">Stock disponible: {data.stock}</p>
                 <AddToCartButton
-                  product={{ id: data.id, name: data.name, price_cents: priceCents, image: coverUrl }}
+                  product={{ id: data.id, name: data.name, price_cents: priceCents, image: coverUrl, stock: data.stock ?? undefined }}
                   className="mt-4 w-full md:w-auto"
                   variant="primary"
                 />
@@ -92,4 +92,3 @@ export default function ProductDetailPage() {
     </main>
   );
 }
-

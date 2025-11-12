@@ -42,6 +42,7 @@ export function AddToCartButton({
       onClick={() => addItem(product, quantity)}
       className={className}
       variant={variant}
+      disabled={typeof product.stock === 'number' && product.stock <= 0}
     >
       {icon}
       {label}
