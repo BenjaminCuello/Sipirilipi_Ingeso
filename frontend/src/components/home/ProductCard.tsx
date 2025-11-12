@@ -38,7 +38,7 @@ export function ProductCard({ product, imageUrl }: Props) {
         </Link>
         <div className="mt-2 text-[var(--color-primary)] font-semibold">{formattedPrice}</div>
         <AddToCartButton
-          product={{ id: product.id, name: product.name, price_cents: product.price_cents, image: cover }}
+          product={{ id: product.id, name: product.name, price_cents: product.price_cents, image: cover, stock: (product as any).stock ?? undefined }}
           className="mt-3 w-full"
         />
       </div>
