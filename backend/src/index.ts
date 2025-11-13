@@ -10,6 +10,7 @@ import productsRouter from './routes/products'
 import categoriesRouter from './routes/categories'
 import mediaRouter from './routes/media'
 import cartRouter from './routes/cart'
+import reportsRouter from './routes/reports' // 🟢 1. Importa el nuevo router
 import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
@@ -20,27 +21,27 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
+    helmet({
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
 )
 
 // CORS configurable por env (soporta lista separada por coma)
 const envOrigins =
-  process.env.CORS_ORIGIN?.split(',')
-    .map(origin => origin.trim())
-    .filter(Boolean) ?? []
+    process.env.CORS_ORIGIN?.split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean) ?? []
 const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174']
 const originList = envOrigins.length > 0 ? envOrigins : defaultOrigins
 const corsCredentials = process.env.CORS_CREDENTIALS === 'true'
 
 app.use(
-  cors({
-    origin: originList,
-    credentials: corsCredentials,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+    cors({
+        origin: originList,
+        credentials: corsCredentials,
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    })
 )
 
 // endpoints de salud para compatibilidad
@@ -54,22 +55,23 @@ app.use('/api/products', productsRouter)
 app.use('/api/categories', categoriesRouter)
 app.use('/api/media', mediaRouter)
 app.use('/api/cart', cartRouter)
+app.use('/api/reports', reportsRouter) // 🟢 2. Añade la nueva ruta
 
 app.use(
-  '/uploads',
-  express.static(uploadsDir, {
-    setHeaders: res => {
-      res.setHeader('Cache-Control', 'public, max-age=604800')
-      // permitir que el frontend (localhost:5173) pueda leer recursos estaticos
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
-    },
-  })
+    '/uploads',
+    express.static(uploadsDir, {
+        setHeaders: res => {
+            res.setHeader('Cache-Control', 'public, max-age=604800')
+            // permitir que el frontend (localhost:5173) pueda leer recursos estaticos
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+        },
+    })
 )
 
 // manejador de errores (con fallback por si la importación cambia)
 const fallbackErrorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err)
-  res.status(500).json({ error: 'Error interno' })
+    console.error(err)
+    res.status(500).json({ error: 'Error interno' })
 }
 app.use(typeof errorHandler === 'function' ? errorHandler : fallbackErrorHandler)
 
@@ -77,23 +79,23 @@ const PORT = Number(process.env.PORT ?? 4000)
 
 // validaciones basicas de configuracion
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL no esta configurada')
+    console.error('DATABASE_URL no esta configurada')
 }
 if (!process.env.JWT_SECRET) {
-  console.warn('JWT_SECRET no esta configurada, endpoints de login fallaran')
+    console.warn('JWT_SECRET no esta configurada, endpoints de login fallaran')
 }
 
 app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`)
+    console.log(`API listening on http://localhost:${PORT}`)
 })
 
 // cierre ordenado de prisma
 const shutdown = async () => {
-  try {
-    await prisma.$disconnect()
-  } finally {
-    process.exit(0)
-  }
+    try {
+        await prisma.$disconnect()
+    } finally {
+        process.exit(0)
+    }
 }
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)

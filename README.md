@@ -170,3 +170,68 @@ Los cambios en el codigo se reflejan inmediatamente.
    - Vendedor: `vendedor@tienda.com / password123`
 
 Con cualquiera de los modos, el backend ejecuta migraciones y seed autom�ticamente al iniciar.
+
+## 📖 API Endpoints: Reportes
+
+Todos los endpoints de reportes están protegidos y requieren autenticación con rol de `ADMIN` o `SELLER`.
+
+---
+
+### 1. Ventas por Mes
+
+Obtiene el total de ventas (de órdenes pagadas) agrupadas por mes.
+
+* **Endpoint:** `GET /api/reports/sales-by-month`
+* **Query Params:**
+    * `from` (string, Opcional): Mes de inicio (formato `YYYY-MM`).
+        * *Default:* 11 meses atrás.
+    * `to` (string, Opcional): Mes de fin (formato `YYYY-MM`).
+        * *Default:* Mes actual.
+* **Ejemplo:**
+  `/api/reports/sales-by-month?from=2024-01&to=2024-12`
+* **Respuesta (array listo para graficar):**
+    ```json
+    [
+      { "month": "2024-10", "total": "550000" },
+      { "month": "2024-11", "total": "720000" }
+    ]
+    ```
+
+### 2. Top Productos
+
+Obtiene los productos más vendidos por cantidad total en órdenes.
+
+* **Endpoint:** `GET /api/reports/top-products`
+* **Query Params:**
+    * `limit` (number, Opcional): Cantidad de productos a devolver.
+        * *Reglas:* `min: 1`, `max: 50`.
+        * *Default:* `5`.
+* **Ejemplo:**
+  `/api/reports/top-products?limit=3`
+* **Respuesta (array listo para graficar):**
+    ```json
+    [
+      { "productId": 12, "name": "Teclado Mecánico", "totalQuantity": 45 },
+      { "productId": 5, "name": "Mouse Gamer", "totalQuantity": 30 },
+      { "productId": 21, "name": "Monitor 24in", "totalQuantity": 15 }
+    ]
+    ```
+
+### 3. Stock Bajo
+
+Obtiene productos cuyo stock actual es menor que el umbral (threshold).
+
+* **Endpoint:** `GET /api/reports/low-stock`
+* **Query Params:**
+    * `threshold` (number, Opcional): El número a usar como límite.
+        * *Reglas:* `min: 0`.
+        * *Default:* `10`.
+* **Ejemplo:**
+  `/api/reports/low-stock?threshold=5`
+* **Respuesta:**
+    ```json
+    [
+      { "id": 18, "name": "Webcam HD", "stock": 4 },
+      { "id": 7, "name": "Audífonos Inalámbricos", "stock": 2 }
+    ]
+    ```
