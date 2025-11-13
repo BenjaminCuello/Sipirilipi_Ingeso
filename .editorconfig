@@ -1,0 +1,21 @@
+# .editorconfig
+
+# Regla principal
+root = true
+
+[*]
+# Codificación de caracteres
+charset = utf-8
+
+# Estilo de fin de línea (LF)
+end_of_line = lf
+
+# Asegurar un fin de línea al final del archivo
+insert_final_newline = true
+
+# Eliminar espacios en blanco al final de la línea
+trim_trailing_whitespace = true
+
+# Estilo de sangría (puedes cambiar 'space' a 'tab' o '2' a '4')
+indent_style = space
+indent_size = 2

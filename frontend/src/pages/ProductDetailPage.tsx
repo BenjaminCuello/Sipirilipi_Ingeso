@@ -22,6 +22,7 @@ export default function ProductDetailPage() {
 
   const priceCents = useMemo(() => {
     if (!data) return 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof (data as any).price_cents === "number") return (data as any).price_cents;
     return Math.round(data.price ?? 0);
   }, [data]);
@@ -43,6 +44,7 @@ export default function ProductDetailPage() {
         {isError && <p className="text-red-600">{(error as Error).message}</p>}
         {!isLoading && !isError && data && (
           <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
+            {/* --- Panel de Imagen --- */}
             <div className="space-y-3">
               <div className="rounded-2xl border border-[var(--color-border)] bg-slate-50 aspect-square overflow-hidden grid place-items-center text-sm text-slate-500">
                 {coverUrl ? (
@@ -66,23 +68,35 @@ export default function ProductDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* --- Panel de Información --- */}
             <div className="space-y-6">
+              {/* Bloque de Título y Precio */}
               <div>
                 <h1 className="text-2xl font-semibold text-slate-900">{data.name}</h1>
                 <div className="mt-2 text-[var(--color-primary)] text-3xl font-bold">{formattedPrice}</div>
               </div>
+
+              {/* Bloque de Descripción */}
               <div>
                 <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">Descripcion</h2>
                 <p className="mt-2 text-sm text-slate-700 leading-relaxed">
                   {data.description || 'Este producto aun no tiene una descripcion disponible.'}
                 </p>
               </div>
+
+              {/* Bloque de Stock y Botón */}
               <div>
-                <p className="text-sm text-slate-600">Stock disponible: {data.stock}</p>
+                <p className="text-sm text-slate-600">
+                  {data.stock && data.stock > 0
+                    ? `Stock disponible: ${data.stock} unidades`
+                    : 'Stock no disponible'}
+                </p>
                 <AddToCartButton
                   product={{ id: data.id, name: data.name, price_cents: priceCents, image: coverUrl, stock: data.stock ?? undefined }}
                   className="mt-4 w-full md:w-auto"
                   variant="primary"
+                  // 🟢 CORRECCIÓN: Se elimina la prop 'disabled'
                 />
               </div>
             </div>

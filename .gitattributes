@@ -1,4 +1,7 @@
+# .gitattributes
+
+# Tratar todos los archivos como texto, normalizar fines de línea a LF
 * text=auto eol=lf
 
-# Si algun dia ponemos scripts .bat en Windows, se dejan con CRLF:
-*.bat text eol=crlf
+# Especificar explícitamente la codificación UTF-8 para archivos comunes de texto
+*.{js,jsx,ts,tsx,json,md,html,css,scss} text charset=utf-8

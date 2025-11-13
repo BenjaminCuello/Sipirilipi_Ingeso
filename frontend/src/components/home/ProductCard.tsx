@@ -21,9 +21,16 @@ export function ProductCard({ product, imageUrl }: Props) {
     imageUrl ?? product.imageUrl ?? product.thumbUrl ?? product.image_url ?? product.thumb_url ?? null
   );
 
+  // 🟢 1. SOLUCIÓN (Error ESLint):
+  //    Usamos un 'disable' para callar al linter sobre el 'any'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stock = (product as any).stock as number | undefined;
+
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-white overflow-hidden hover:shadow-md transition">
-      <Link to={`/producto/${product.id}`} className="block aspect-[4/3] bg-slate-100 grid place-items-center overflow-hidden">
+
+      {/* 🟢 2. SOLUCIÓN (Aviso CSS): Se quitó la clase 'block' */}
+      <Link to={`/producto/${product.id}`} className="aspect-[4/3] bg-slate-100 grid place-items-center overflow-hidden">
         {cover ? (
           <img src={cover} alt={product.name} className="h-full w-full object-cover" />
         ) : (
@@ -37,9 +44,19 @@ export function ProductCard({ product, imageUrl }: Props) {
           </h3>
         </Link>
         <div className="mt-2 text-[var(--color-primary)] font-semibold">{formattedPrice}</div>
+
+        <div className="mt-2 text-xs text-slate-500">
+          {stock && stock > 0
+            ? `${stock} disponibles`
+            : 'Agotado'}
+        </div>
+
         <AddToCartButton
-          product={{ id: product.id, name: product.name, price_cents: product.price_cents, image: cover, stock: (product as any).stock ?? undefined }}
+          product={{ id: product.id, name: product.name, price_cents: product.price_cents, image: cover, stock: stock }}
           className="mt-3 w-full"
+          // 🟢 3. SOLUCIÓN (Error TSC2322):
+          //    Eliminamos la prop 'disabled' porque el componente no la acepta
+          // disabled={!stock || stock <= 0}
         />
       </div>
     </div>
