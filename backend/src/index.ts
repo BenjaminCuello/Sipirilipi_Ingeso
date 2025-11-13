@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-
+import ticketsRouter from './routes/tickets';
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
 import productsRouter from './routes/products'
@@ -18,6 +18,7 @@ import { errorHandler } from './middleware/error'
 const app = express()
 
 // middlewares base
+app.use('/api/tickets', ticketsRouter);
 app.use(express.json())
 app.use(cookieParser())
 app.use(

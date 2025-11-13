@@ -13,11 +13,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ENUM de roles
+// ENUM de roles de usuario
 enum Role {
   ADMIN
   SELLER
   CUSTOMER
+}
+
+// 🟢 NUEVO: Enum para estado de orden
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  cancelled
+}
+
+// 🟢 NUEVO: Enum para estado de ticket
+enum TicketStatus {
+  open
+  approved
+  rejected
+  closed
 }
 
 // Modelo de usuarios
@@ -30,6 +46,10 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   cart          Cart?
+
+  // 🟢 AÑADIDO: Relaciones con Orden y Tickets
+  orders        Order[]
+  tickets       ReturnTicket[]
 }
 
 // Modelo de productos
@@ -61,6 +81,9 @@ model Product {
   updatedAt   DateTime  @updatedAt
   images      ProductImage[]
   cartItems   CartItem[]
+
+  // 🟢 AÑADIDO: Relación con items de orden
+  orderItems  OrderItem[]
 }
 
 // Galeria de imagenes por producto (max 10 por producto en logica de app)
@@ -104,4 +127,62 @@ model CartItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
+}
+
+// ----------------------------------------------------
+// 🟢 INICIO: MODELOS AÑADIDOS (Order, OrderItem, ReturnTicket)
+// ----------------------------------------------------
+
+// Modelo de Pedidos (Necesario para los tickets)
+model Order {
+  id         String      @id @default(cuid())
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+  totalCents Int
+  status     OrderStatus @default(pending)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  items   OrderItem[]
+  tickets ReturnTicket[] // Una orden puede tener varios tickets
+
+  @@map("orders")
+  @@index([userId])
+}
+
+// Modelo de Items del Pedido (Necesario para los tickets)
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  Int
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Int
+  priceCents Int // Precio al momento de la compra
+
+  @@map("order_items")
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Modelo de Tickets de Cambio (Tu Tarea)
+model ReturnTicket {
+  id        String       @id @default(cuid())
+  reason    String       @db.Text
+  status    TicketStatus @default(open)
+  openedAt  DateTime     @default(now()) @map("opened_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  // Relación con la Orden
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Relación con el Usuario (Cliente)
+  // Nota: userId es Int para coincidir con tu modelo User
+  userId Int @map("user_id")
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("return_tickets")
+  @@index([orderId])
+  @@index([userId])
 }
