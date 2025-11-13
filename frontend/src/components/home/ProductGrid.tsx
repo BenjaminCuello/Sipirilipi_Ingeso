@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useProducts, type Product, type ProductsResponse } from "@/hooks/useProducts";
 import { ProductCard } from "./ProductCard";
+import { Link } from "react-router-dom"; 
 
 export function ProductGrid() {
   const [page, setPage] = useState(1);
@@ -26,7 +27,10 @@ export function ProductGrid() {
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {items.map((product: Product) => (
-            <ProductCard key={product.id} product={product} />
+          
+            <Link to={`/producto/${product.id}`} key={product.id} className="group">
+              <ProductCard product={product} />
+            </Link>
           ))}
         </div>
 

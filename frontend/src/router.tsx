@@ -13,6 +13,10 @@ import SellerProductsPage from './pages/SellerProductsPage'
 import SellerDashboardPage from './pages/SellerDashboardPage'
 import RecoverPasswordPage from './pages/RecoverPasswordPage'
 import SearchResultsPage from './pages/SearchResultsPage'
+import OrdersPage from './pages/OrdersPage'
+import CheckoutPage from './pages/CheckoutPage'; 
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage'; 
+
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +32,7 @@ export const router = createBrowserRouter([
       { path: '/recuperar', element: <RecoverPasswordPage /> },
       { path: '/buscar', element: <SearchResultsPage /> },
       { path: '/producto/:id', element: <ProductDetailPage /> },
+      { path: '/checkout/success', element: <CheckoutSuccessPage /> },
     ],
   },
   {
@@ -38,6 +43,8 @@ export const router = createBrowserRouter([
       { path: '/panel/products/new', element: <ProductFormPage /> },
       { path: '/panel/products/:id/edit', element: <ProductFormPage /> },
       { path: '/admin', element: <CatalogPage /> },
+      { path: '/account/orders', element: <OrdersPage /> },
+      { path: '/checkout', element: <CheckoutPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-
+import checkoutRoutes from './routes/checkout';
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
 import productsRouter from './routes/products'
@@ -97,3 +97,5 @@ const shutdown = async () => {
 }
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)
+
+app.use('/api', checkoutRoutes);
