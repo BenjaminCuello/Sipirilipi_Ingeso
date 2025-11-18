@@ -30,7 +30,6 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   cart          Cart?
-  orders        Order[]
 }
 
 // Modelo de productos
@@ -62,7 +61,6 @@ model Product {
   updatedAt   DateTime  @updatedAt
   images      ProductImage[]
   cartItems   CartItem[]
-  orderItems  OrderItem[]
 }
 
 // Galeria de imagenes por producto (max 10 por producto en logica de app)
@@ -108,7 +106,10 @@ model CartItem {
   @@unique([cartId, productId])
 }
 
-// Enums para estados y métodos de pago
+// =====================
+// Órdenes y Pagos
+// =====================
+
 enum OrderStatus {
   pending
   paid
@@ -123,50 +124,44 @@ enum PaymentMethod {
   paypal
 }
 
-// Modelo para las órdenes
 model Order {
-  id        Int          @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   userId    Int
-  status    OrderStatus  @default(pending)
-  total     Int          @map("total_cents")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  status    OrderStatus @default(pending)
+  total_cents Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items    OrderItem[]
-  payments Payment[]
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrderItem[]
+  payments  Payment[]
 
   @@index([userId])
-  @@map("orders")
 }
 
-// Modelo para los Items de una Orden
 model OrderItem {
-  id        Int @id @default(autoincrement())
-  orderId   Int
-  productId Int
-  quantity  Int @map("qty")
-  unitPrice Int @map("unit_price_cents")
-  subtotal  Int @map("subtotal_cents")
+  id              Int      @id @default(autoincrement())
+  orderId         Int
+  productId       Int
+  qty             Int
+  unit_price_cents Int
+  subtotal_cents  Int
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([productId])
-  @@map("order_items")
 }
 
-// Modelo para los Pagos
 model Payment {
-  id      Int           @id @default(autoincrement())
-  orderId Int
-  method  PaymentMethod @default(simulado)
-  amount  Int           @map("amount_cents")
-  paidAt  DateTime      @default(now()) @map("paid_at")
+  id          Int           @id @default(autoincrement())
+  orderId     Int
+  method      PaymentMethod @default(simulado)
+  amount_cents Int
+  paid_at     DateTime       @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
-  @@map("payments")
 }

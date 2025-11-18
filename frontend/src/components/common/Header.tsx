@@ -1,53 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from '@/hooks/useSessions';
-import { User, Loader2 } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LoginSheet } from '@/components/auth/LoginSheet';
-import { CategoriesMenu } from '@/components/common/CategoriesMenu';
+import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { User, Loader2 } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LoginSheet } from "@/components/auth/LoginSheet";
+import { CategoriesMenu } from "@/components/common/CategoriesMenu";
+import { isAuthenticated, logout, hasRole } from "@/lib/auth";
 import { useCartStore } from "@/store/cartStore";
-import ProductService, { type CatalogProduct } from '@/services/ProductService';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { MiniCart } from '@/components/cart/MiniCart';
+import ProductService, { type CatalogProduct } from "@/services/ProductService";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { MiniCart } from "@/components/cart/MiniCart";
 
 type HeaderProps = {
   initialQuery?: string;
 };
 
-// Hook de mutación para Logout
-function useLogout() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const logoutFn = async () => {
-    const base = (import.meta.env.VITE_API_URL || '').toString().replace(/\/$/, '');
-    const res = await fetch(`${base}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      throw new Error('Error al cerrar sesión');
-    }
-    return res.json();
-  };
-
-  return useMutation({
-    mutationFn: logoutFn,
-    onSuccess: () => {
-      queryClient.setQueryData(['auth-me'], null);
-      navigate('/login', { replace: true });
-    },
-    onError: (err: Error) => {
-      console.error('Error en logout:', err);
-      queryClient.setQueryData(['auth-me'], null);
-      navigate('/login', { replace: true });
-    },
-  });
-}
-
-export function Header({ initialQuery = '' }: HeaderProps) {
+export function Header({ initialQuery = "" }: HeaderProps) {
   const [openLogin, setOpenLogin] = useState(false);
   const [search, setSearch] = useState(initialQuery);
   const [focused, setFocused] = useState(false);
@@ -55,18 +24,16 @@ export function Header({ initialQuery = '' }: HeaderProps) {
   const inputWrapperRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { isAuthenticated: authed, role } = useSession();
-  const logoutMutation = useLogout();
-
+  const authed = isAuthenticated();
   const syncFromServer = useCartStore((s) => s.syncFromServer);
   const serverLoaded = useCartStore((s) => s.serverLoaded ?? false);
+  const canManage = hasRole("ADMIN", "SELLER");
 
   useEffect(() => {
     setSearch(initialQuery);
   }, [initialQuery]);
 
-  // useEffect para sincronizar el carrito
+  // sync carrito con backend si hay sesion y no se ha hecho
   useEffect(() => {
     if (authed && !serverLoaded) {
       void syncFromServer();
@@ -75,7 +42,6 @@ export function Header({ initialQuery = '' }: HeaderProps) {
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
-  // 🟢 ESTA LÍNEA DABA ERROR PORQUE LAS VARIABLES NO SE USABAN
   const { data: suggestions = [], isFetching: loadingSuggestions } = useQuery({
     queryKey: ["search-suggestions", debouncedSearch],
     queryFn: () => ProductService.suggestions(debouncedSearch.trim(), 5),
@@ -98,7 +64,8 @@ export function Header({ initialQuery = '' }: HeaderProps) {
   }, [location.key]);
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    logout();
+    navigate("/login", { replace: true });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -109,7 +76,6 @@ export function Header({ initialQuery = '' }: HeaderProps) {
     setFocused(false);
   };
 
-  // 🟢 ESTA LÍNEA DABA ERROR PORQUE LA FUNCIÓN NO SE USABA
   const handleSuggestionClick = (product: CatalogProduct) => {
     setFocused(false);
     setSearch(product.name);
@@ -124,6 +90,7 @@ export function Header({ initialQuery = '' }: HeaderProps) {
             <img src="/logo.png" alt="Sipirilipi" width={140} height={36} className="h-10 w-auto" />
           </Link>
         </div>
+
         <div className="shrink-0 ml-15">
           <CategoriesMenu />
         </div>
@@ -148,7 +115,6 @@ export function Header({ initialQuery = '' }: HeaderProps) {
               </svg>
             </button>
 
-            {/* 🟢 CORRECCIÓN: Este bloque ya no está comentado */}
             {focused && (
               <div className="absolute left-0 right-0 mt-2 bg-white text-gray-900 rounded-xl border border-gray-200 shadow-lg">
                 {loadingSuggestions ? (
@@ -185,38 +151,28 @@ export function Header({ initialQuery = '' }: HeaderProps) {
         </form>
 
         <nav className="shrink-0 flex items-center gap-4">
-          {authed && role === 'vendedor' && (
-            <Link
-              to="/panel/dashboard"
-              className="hidden sm:flex h-10 px-4 items-center justify-center gap-2 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-            >
-              <span className="text-sm font-medium">Panel Vendedor</span>
-            </Link>
-          )}
-          {authed && role === 'admin' && (
-            <Link
-              to="/admin"
-              className="hidden sm:flex h-10 px-4 items-center justify-center gap-2 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-            >
-              <span className="text-sm font-medium">Panel Admin</span>
-            </Link>
-          )}
-
           {authed ? (
-            <button
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-              className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-            >
-              <div className="h-9 flex items-center justify-center gap-2">
-                {logoutMutation.isPending ? (
-                  <Loader2 className="animate-spin" size={18} />
-                ) : (
+            <>
+              {canManage && (
+                <button
+                  onClick={() => navigate('/panel/products')}
+                  className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                >
+                  <div className="h-9 flex items-center justify-center gap-2">
+                    <span className="text-sm font-medium">Ir a productos</span>
+                  </div>
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+              >
+                <div className="h-9 flex items-center justify-center gap-2">
                   <User className="text-white" size={18} />
-                )}
-                <span className="text-sm font-medium">Cerrar sesión</span>
-              </div>
-            </button>
+                  <span className="text-sm font-medium">Cerrar sesion</span>
+                </div>
+              </button>
+            </>
           ) : (
             <div className="relative" ref={loginAnchorRef}>
               <button
@@ -225,7 +181,7 @@ export function Header({ initialQuery = '' }: HeaderProps) {
               >
                 <div className="h-9 flex items-center justify-center gap-2">
                   <User className="text-white" size={18} />
-                  <span className="text-sm font-medium">Iniciar sesión</span>
+                  <span className="text-sm font-medium">Iniciar sesion</span>
                 </div>
               </button>
 
