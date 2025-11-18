@@ -10,9 +10,10 @@ import {
 } from "@/store/cartStore";
 import { Button } from "@/components/ui/Button";
 import { formatCLPFromCents } from "@/lib/format";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CartPage() {
+  const navigate = useNavigate();
   const items = useCartStore(selectCartItems);
   const totalCents = useCartStore(selectCartTotal);
   const increment = useCartStore((state: CartState) => state.increment);
@@ -95,7 +96,11 @@ export default function CartPage() {
               </div>
             </div>
 
-            <Button className="mt-6 w-full" disabled={isEmpty}>
+            <Button
+              className="mt-6 w-full"
+              disabled={isEmpty}
+              onClick={() => navigate("/checkout")}
+            >
               Proceder al pago
             </Button>
 

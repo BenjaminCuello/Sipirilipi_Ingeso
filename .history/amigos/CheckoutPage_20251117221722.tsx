@@ -1,0 +1,1 @@
+// Archivo migrado: usar frontend/src/pages/CheckoutPage.tsx

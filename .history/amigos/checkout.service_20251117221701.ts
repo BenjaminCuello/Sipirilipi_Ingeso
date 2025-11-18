@@ -1,0 +1,1 @@
+// Archivo migrado: usar backend/src/services/checkout.service.ts
