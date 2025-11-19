@@ -7,21 +7,25 @@ import { isAuthenticated } from '@/lib/auth'
 import { useCartStore, selectCartItems, selectCartTotal } from '@/store/cartStore'
 import OrderService from '@/services/OrderServices'
 
+type OrderCreationResult = { orderId: number; createdAt: string; total: number }
+
+const CHECKOUT_REDIRECT_STATE = { from: '/checkout' as const }
+
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate()
   const items = useCartStore(selectCartItems)
   const totalCents = useCartStore(selectCartTotal)
   const clearCart = useCartStore((state) => state.clear)
 
-  const createOrderMutation = useMutation({
+  const createOrderMutation = useMutation<OrderCreationResult, Error>({
     mutationFn: () => OrderService.create(items),
     onSuccess: (data) => {
       clearCart()
       navigate(`/checkout/success?orderId=${data.orderId}`)
     },
-    onError: (error: any) => {
-      if (error?.message === 'Autorizacion requerida' || error?.message === 'Autorización requerida') {
-        navigate('/login', { replace: true, state: { from: '/checkout' } as any })
+    onError: (error) => {
+      if (error.message === 'Autorizacion requerida' || error.message === 'Autorización requerida') {
+        navigate('/login', { replace: true, state: CHECKOUT_REDIRECT_STATE })
         return
       }
       console.error('Error al crear la orden:', error)
@@ -31,7 +35,7 @@ const CheckoutPage: React.FC = () => {
 
   const handleConfirmPurchase = () => {
     if (!isAuthenticated()) {
-      navigate('/login', { replace: true, state: { from: '/checkout' } as any })
+      navigate('/login', { replace: true, state: CHECKOUT_REDIRECT_STATE })
       return
     }
     createOrderMutation.mutate()

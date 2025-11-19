@@ -11,7 +11,7 @@ export default function ProductDetailPage() {
   const productId = Number(params.id);
   const isValidId = Number.isInteger(productId) && productId > 0;
 
-  const { data, isLoading, isError, error } = useQuery<CatalogProduct>({
+  const { data, isLoading, isError, error } = useQuery<CatalogProduct, Error>({
     queryKey: ["product-detail", productId],
     queryFn: () => ProductService.getById(productId),
     enabled: isValidId,
@@ -22,7 +22,7 @@ export default function ProductDetailPage() {
 
   const priceCents = useMemo(() => {
     if (!data) return 0;
-    if (typeof (data as any).price_cents === "number") return (data as any).price_cents;
+    if (typeof data.price_cents === "number") return data.price_cents;
     return Math.round(data.price ?? 0);
   }, [data]);
 
@@ -40,7 +40,7 @@ export default function ProductDetailPage() {
       <section className="w-full max-w-[1100px] mx-auto px-6 py-10">
         {!isValidId && <p className="text-red-600">Producto no valido.</p>}
         {isLoading && <p className="text-slate-700">Cargando producto...</p>}
-        {isError && <p className="text-red-600">{(error as Error).message}</p>}
+        {isError && <p className="text-red-600">{error?.message}</p>}
         {!isLoading && !isError && data && (
           <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
             <div className="space-y-3">

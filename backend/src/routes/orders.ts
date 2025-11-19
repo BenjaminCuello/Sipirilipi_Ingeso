@@ -33,6 +33,7 @@ router.get('/', async (_req, res, next) => {
       total: order.total,
       status: order.status,
       items: order.items.map((item) => ({
+        orderItemId: item.id,
         productId: item.productId,
         productName: item.product.name,
         quantity: item.quantity,

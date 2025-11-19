@@ -123,6 +123,13 @@ enum PaymentMethod {
   paypal
 }
 
+enum TicketStatus {
+  pending
+  approved
+  rejected
+  closed
+}
+
 // Modelo para las órdenes
 model Order {
   id        Int          @id @default(autoincrement())
@@ -135,6 +142,7 @@ model Order {
   user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items    OrderItem[]
   payments Payment[]
+  tickets  Ticket[]
 
   @@index([userId])
   @@map("orders")
@@ -151,6 +159,7 @@ model OrderItem {
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  ticketItems TicketItem[]
 
   @@index([orderId])
   @@index([productId])
@@ -169,4 +178,36 @@ model Payment {
 
   @@index([orderId])
   @@map("payments")
+}
+
+model Ticket {
+  id           Int          @id @default(autoincrement())
+  code         String       @unique
+  orderId      Int
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status       TicketStatus @default(pending)
+  reason       String
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  notes        String?
+  expiresAt    DateTime
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  items        TicketItem[]
+
+  @@index([orderId])
+}
+
+model TicketItem {
+  id          Int       @id @default(autoincrement())
+  ticketId    Int
+  ticket      Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  orderItemId Int
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+  quantity    Int
+
+  @@index([ticketId])
+  @@index([orderItemId])
+  @@unique([ticketId, orderItemId])
 }

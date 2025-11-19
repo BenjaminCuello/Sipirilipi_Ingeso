@@ -14,6 +14,7 @@ import RegisterPage from './pages/RegisterPage'
 import NotFoundPage from './pages/NotFoundPage'
 import SellerProductsPage from './pages/SellerProductsPage'
 import SellerDashboardPage from './pages/SellerDashboardPage'
+import TicketsAdminPage from './pages/TicketsAdminPage'
 import RecoverPasswordPage from './pages/RecoverPasswordPage'
 import SearchResultsPage from './pages/SearchResultsPage'
 
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
       { path: '/panel/products', element: <SellerProductsPage /> },
       { path: '/panel/products/new', element: <ProductFormPage /> },
       { path: '/panel/products/:id/edit', element: <ProductFormPage /> },
+      { path: '/panel/tickets', element: <TicketsAdminPage /> },
       { path: '/admin', element: <CatalogPage /> },
     ],
   },

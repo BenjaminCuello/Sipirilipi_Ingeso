@@ -97,7 +97,7 @@ export async function apiFetch<T>(
     ...rest,
   })
 
-  let json: any = null
+  let json: unknown = null
   if (res.status !== 204) {
     try {
       json = await res.json()
@@ -107,7 +107,8 @@ export async function apiFetch<T>(
   }
 
   if (!res.ok) {
-    const message = json?.error ?? `HTTP ${res.status}`
+    const errorPayload = (json as { error?: string } | null) ?? null
+    const message = errorPayload?.error ?? `HTTP ${res.status}`
     throw new Error(message)
   }
 

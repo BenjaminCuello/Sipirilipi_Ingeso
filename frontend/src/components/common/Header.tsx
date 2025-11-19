@@ -171,14 +171,24 @@ export function Header({ initialQuery = "" }: HeaderProps) {
           {authed ? (
             <>
               {canManage && (
-                <button
-                  onClick={() => navigate('/panel/products')}
-                  className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-                >
-                  <div className="h-9 flex items-center justify-center gap-2">
-                    <span className="text-sm font-medium">Ir a productos</span>
-                  </div>
-                </button>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <button
+                    onClick={() => navigate('/panel/products')}
+                    className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                  >
+                    <div className="h-9 flex items-center justify-center gap-2">
+                      <span className="text-sm font-medium">Ir a productos</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate('/panel/tickets')}
+                    className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                  >
+                    <div className="h-9 flex items-center justify-center gap-2">
+                      <span className="text-sm font-medium">Ver tickets</span>
+                    </div>
+                  </button>
+                </div>
               )}
               <div className="relative" ref={accountMenuRef}>
                 <button
@@ -212,6 +222,15 @@ export function Header({ initialQuery = "" }: HeaderProps) {
                           className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition"
                         >
                           <span>Panel de control</span>
+                        </Link>
+                      )}
+                      {canManage && (
+                        <Link
+                          to="/panel/tickets"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition"
+                        >
+                          <span>Tickets</span>
                         </Link>
                       )}
                       <button

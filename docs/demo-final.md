@@ -18,7 +18,7 @@ Este documento resume los recursos necesarios para la demo final del Sprint 4: e
 #### Cómo abrir un ticket desde la web
 
 1. Inicia sesión como cliente (ej. `cliente@demo.com`) y ve a **Mis pedidos** (`/account/orders`).
-2. Abre el detalle del pedido reciente y pulsa **Solicitar cambio**.
+2. Abre el detalle del pedido reciente y pulsa **Solicitar ticket**.
 3. Completa el formulario: selecciona los ítems afectados, describe el motivo y confirma los datos de contacto.
 4. Envía el formulario. El sitio muestra el código del ticket (`TCK-xxxx`) y la fecha límite para el cambio.
 
@@ -26,19 +26,19 @@ Este documento resume los recursos necesarios para la demo final del Sprint 4: e
 
 #### Cómo revisar tickets en el panel
 
-1. Ingresa al panel con un rol `ADMIN`/`SELLER` y navega a **Soporte → Tickets**.
-2. Utiliza los filtros superiores (estado, período, correo del cliente) para acotar la búsqueda.
-3. Haz clic en una fila para ver el detalle: productos asociados, notas internas y timeline de actualizaciones.
+1. Inicia sesión como `ADMIN`/`SELLER`, abre el menú **Mi cuenta** y selecciona **Tickets** (o usa el botón “Ver tickets” junto al de productos). Esto carga `/panel/tickets`.
+2. Ajusta los filtros superiores (estado, correo, ID de orden y rango de fechas) y pulsa **Aplicar filtros** para recargar la tabla.
+3. Usa el botón **Ver detalle** de cada fila para abrir el panel lateral con motivo, datos de contacto y la lista de productos.
 
-- **Indicadores en la UI:** el listado muestra badges por estado y la fecha de expiración, permitiendo priorizar casos “por vencer”.
+- **Indicadores en la UI:** la tabla muestra badges por estado y la fecha de expiración; el contador superior refleja cuántos tickets cumplen con el filtro actual.
 
 #### Cómo cambiar el estado de un ticket
 
 1. En el detalle del ticket, usa el selector **Estado** para elegir `approved`, `rejected` o `closed`.
 2. Agrega una nota corta (se muestra al cliente en su historial).
-3. Guarda. La tarjeta superior se actualiza con el nuevo estado y se registra la acción en la bitácora inferior.
+3. Guarda. El badge del modal y de la tabla se actualiza y el pie del panel muestra la fecha/hora de la última modificación.
 
-- **Consejo demo:** cambia el estado dos veces (por ejemplo `pending → approved → closed`) para evidenciar que el timeline registra cada transición.
+- **Consejo demo:** cambia el estado dos veces (por ejemplo `pending → approved → closed`) y refresca la tabla para mostrar cómo responde el listado.
 
 ---
 
