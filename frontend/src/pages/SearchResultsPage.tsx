@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/common/Header";
-import ProductService, { CatalogCategory, CatalogProduct } from "@/services/ProductService";
+import ProductService from "@/services/ProductService";
+import type { CatalogCategory, CatalogProduct } from "@/services/ProductService";
 
 const SORT_OPTIONS = [
   { value: "relevance", label: "Relevancia" },

@@ -81,6 +81,7 @@ Requisitos:
 - Ejecutar en una terminal dentro del proyecto:
   cd backend
   npm run dev
+  La API queda disponible en http://localhost:4000/api.
 
 2. Frontend
 
@@ -100,8 +101,8 @@ Requisitos:
 Notas:
 
 - CORS está habilitado para http://localhost:5173 en desarrollo.
-- Si el carrusel no muestra imágenes, agrega opcionalmente banners en rontend/public/banners/.
-  Los productos mostrados son solo una demo de lo que se mostrara al final
+- Si el carrusel no muestra imágenes, agrega opcionalmente banners en frontend/public/banners/.
+  Los productos mostrados son solo una demo de lo que se mostrará al final.
 
 ### Backoffice (admin/vendedor)
 
@@ -152,21 +153,18 @@ Si quieres trabajar desde Docker con recarga en vivo (sin instalar Node/Postgres
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-- Frontend: expuesto en http://localhost:5173 con Vite dev server (volumen sobre `./frontend`).
-- Backend: expuesto en http://localhost:4000 corriendo `npm run dev` (volumen sobre `./backend`).
-- Base de datos: Postgres en el contenedor `db`.
 
-Los cambios en el codigo se reflejan inmediatamente.
+ Los cambios en el código se reflejan inmediatamente.
 
 ### Resumen para el equipo
 
 1. Clonar el repo.
 2. Elegir una de estas opciones:
    - **Local**: instalar dependencias (`npm install`) y usar `npm run dev` en backend/frontend con PostgreSQL local.
-   - **Docker demo**: `docker compose up --build` para la version compilada lista para demo.
+  - **Docker demo**: `docker compose up --build` para la versión compilada lista para demo.
    - **Docker dev**: `docker compose -f docker-compose.dev.yml up --build` para trabajar con hot reload sin dependencias locales.
 3. Credenciales demo:
    - Cliente: `cliente@demo.com / secret12`
    - Vendedor: `vendedor@tienda.com / password123`
 
-Con cualquiera de los modos, el backend ejecuta migraciones y seed autom�ticamente al iniciar.
+ Con cualquiera de los modos, el backend ejecuta migraciones y seed automáticamente al iniciar.
