@@ -19,7 +19,7 @@ type ButtonAsAnchor = Common &
 type Props = ButtonAsButton | ButtonAsAnchor;
 
 export function Button(props: Props) {
-    const { variant = "primary", className, as, ...rest } = props as any;
+    const { variant = "primary", className, as, ...rest } = props;
 
     const styles =
         variant === "primary"
@@ -35,8 +35,10 @@ export function Button(props: Props) {
     );
 
     if (as === "a") {
-        return <a className={cls} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)} />;
+        const anchorProps = rest as React.AnchorHTMLAttributes<HTMLAnchorElement>;
+        return <a className={cls} {...anchorProps} />;
     }
-    return <button className={cls} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)} />;
+    const buttonProps = rest as React.ButtonHTMLAttributes<HTMLButtonElement>;
+    return <button className={cls} {...buttonProps} />;
 }
 

@@ -4,6 +4,7 @@ import { type CartItem as CartStoreItem } from '@/store/cartStore'
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
 
 export interface OrderItem {
+  orderItemId: number
   productId: number
   productName: string
   quantity: number

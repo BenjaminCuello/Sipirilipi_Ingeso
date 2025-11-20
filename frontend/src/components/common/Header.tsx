@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { User, Loader2 } from "lucide-react";
+import { User, Loader2, ChevronDown } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LoginSheet } from "@/components/auth/LoginSheet";
 import { CategoriesMenu } from "@/components/common/CategoriesMenu";
@@ -20,7 +20,9 @@ export function Header({ initialQuery = "" }: HeaderProps) {
   const [openLogin, setOpenLogin] = useState(false);
   const [search, setSearch] = useState(initialQuery);
   const [focused, setFocused] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const loginAnchorRef = useRef<HTMLDivElement | null>(null);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const inputWrapperRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,12 +62,27 @@ export function Header({ initialQuery = "" }: HeaderProps) {
   }, []);
 
   useEffect(() => {
+    function handleAccountClickOutside(event: MouseEvent) {
+      if (!accountMenuRef.current) return;
+      if (!accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    }
+    if (accountMenuOpen) {
+      document.addEventListener("mousedown", handleAccountClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleAccountClickOutside);
+  }, [accountMenuOpen]);
+
+  useEffect(() => {
     setFocused(false);
+    setAccountMenuOpen(false);
   }, [location.key]);
 
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
+    setAccountMenuOpen(false);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -154,24 +171,79 @@ export function Header({ initialQuery = "" }: HeaderProps) {
           {authed ? (
             <>
               {canManage && (
-                <button
-                  onClick={() => navigate('/panel/products')}
-                  className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-                >
-                  <div className="h-9 flex items-center justify-center gap-2">
-                    <span className="text-sm font-medium">Ir a productos</span>
-                  </div>
-                </button>
-              )}
-              <button
-                onClick={handleLogout}
-                className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
-              >
-                <div className="h-9 flex items-center justify-center gap-2">
-                  <User className="text-white" size={18} />
-                  <span className="text-sm font-medium">Cerrar sesion</span>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <button
+                    onClick={() => navigate('/panel/products')}
+                    className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                  >
+                    <div className="h-9 flex items-center justify-center gap-2">
+                      <span className="text-sm font-medium">Ir a productos</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate('/panel/tickets')}
+                    className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition"
+                  >
+                    <div className="h-9 flex items-center justify-center gap-2">
+                      <span className="text-sm font-medium">Ver tickets</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
+              )}
+              <div className="relative" ref={accountMenuRef}>
+                <button
+                  onClick={() => setAccountMenuOpen((prev) => !prev)}
+                  className="h-10 px-4 rounded-[var(--radius-lg)] text-white border border-white/40 hover:bg-white/10 transition flex items-center gap-2"
+                  aria-haspopup="menu"
+                  aria-expanded={accountMenuOpen}
+                >
+                  <User className="text-white" size={18} />
+                  <span className="text-sm font-medium hidden sm:inline">Mi cuenta</span>
+                  <ChevronDown size={16} className="text-white" />
+                </button>
+                {accountMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-white text-gray-900 shadow-2xl">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">Tu cuenta</p>
+                      <p className="text-xs text-gray-500">Gestiona pedidos y sesión</p>
+                    </div>
+                    <nav className="py-2">
+                      <Link
+                        to="/account/orders"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition"
+                      >
+                        <span>Mis pedidos</span>
+                      </Link>
+                      {canManage && (
+                        <Link
+                          to="/panel/dashboard"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition"
+                        >
+                          <span>Panel de control</span>
+                        </Link>
+                      )}
+                      {canManage && (
+                        <Link
+                          to="/panel/tickets"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition"
+                        >
+                          <span>Tickets</span>
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition"
+                      >
+                        Cerrar sesion
+                      </button>
+                    </nav>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div className="relative" ref={loginAnchorRef}>

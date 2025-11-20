@@ -15,8 +15,9 @@ type FormValues = z.infer<typeof schema>
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const location = useLocation() as any
-  const from = location.state?.from?.pathname || '/panel/products'
+  const location = useLocation()
+  const state = (location.state as { from?: { pathname?: string } } | null) ?? null
+  const from = state?.from?.pathname || '/panel/products'
   const [submitError, setSubmitError] = useState<string>('')
 
   const {

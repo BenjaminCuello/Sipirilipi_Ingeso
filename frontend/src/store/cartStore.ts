@@ -1,4 +1,4 @@
-import { create, type StoreApi } from "zustand";
+import { create, type StateCreator } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { isAuthenticated } from "@/lib/auth";
 import CartService, { type ServerCart, type ServerCartItem } from "@/services/CartService";
@@ -41,13 +41,10 @@ function recalc(items: CartItem[]) {
 
 const storage = typeof window !== "undefined" ? createJSONStorage<CartState>(() => window.localStorage) : undefined;
 
-type CartSetState = StoreApi<CartState>["setState"];
-type CartGetState = StoreApi<CartState>["getState"];
-
 export const MAX_ITEM_QUANTITY = 10;
 const MIN_ITEM_QUANTITY = 1;
 
-const cartStore = (set: CartSetState, get: CartGetState): CartState => ({
+const cartStore: StateCreator<CartState> = (set, get) => ({
   items: [],
   totalItems: 0,
   totalCents: 0,
@@ -233,7 +230,7 @@ const cartStore = (set: CartSetState, get: CartGetState): CartState => ({
 });
 
 export const useCartStore = create<CartState>()(
-  persist<CartState>(cartStore as any, {
+  persist<CartState>(cartStore, {
     name: "sipirilipi-cart-v1",
     ...(storage ? { storage } : {}),
   })

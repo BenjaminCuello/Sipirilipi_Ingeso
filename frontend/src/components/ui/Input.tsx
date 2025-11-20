@@ -8,7 +8,10 @@ type Props = React.InputHTMLAttributes<HTMLInputElement> & {
     error?: string;
 };
 
-export function Input({ label, error, className, id, ...props }: Props) {
+export const Input = React.forwardRef<HTMLInputElement, Props>(function Input(
+    { label, error, className, id, ...props },
+    ref
+) {
     const inputId = id || React.useId();
     return (
         <div className="w-full">
@@ -18,6 +21,7 @@ export function Input({ label, error, className, id, ...props }: Props) {
                 </label>
             )}
             <input
+                ref={ref}
                 id={inputId}
                 className={cn(
                     "w-full h-11 px-3 rounded-md border border-border bg-white text-fg outline-none",
@@ -29,4 +33,4 @@ export function Input({ label, error, className, id, ...props }: Props) {
             {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
         </div>
     );
-}
+});

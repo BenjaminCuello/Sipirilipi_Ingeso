@@ -12,6 +12,7 @@ import mediaRouter from './routes/media'
 import cartRouter from './routes/cart'
 import checkoutRouter from './routes/checkout'
 import ordersRouter from './routes/orders'
+import ticketsRouter from './routes/tickets'
 import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
@@ -58,6 +59,7 @@ app.use('/api/media', mediaRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/checkout', checkoutRouter)
 app.use('/api/orders', ordersRouter)
+app.use('/api/tickets', ticketsRouter)
 
 app.use(
   '/uploads',
