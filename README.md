@@ -156,6 +156,39 @@ docker compose -f docker-compose.dev.yml up --build
 
  Los cambios en el código se reflejan inmediatamente.
 
+ ## Novedades Técnicas (Actualizado)
+
+### Producción y Build
+El backend ahora cuenta con un flujo de compilación optimizado para producción:
+1. **TypeScript a JavaScript**: Se compila todo el código en `/dist`.
+2. **Docker Multi-stage**: La imagen final no contiene TypeScript ni dependencias de desarrollo (`devDependencies`), reduciendo su tamaño y mejorando la seguridad.
+3. **Ejecución nativa**: Se utiliza `node dist/index.js` en lugar de `ts-node`.
+
+### Logging y Observabilidad
+Se ha implementado **Pino** como logger profesional:
+- **JSON estructurado**: Logs en formato JSON para fácil ingesta por herramientas de monitoreo (ELK, Datadog, etc.).
+- **Request ID**: Cada petición HTTP recibe un ID único automáticamente.
+- **Healthcheck DB**: Endpoint `/api/health-db` que verifica activamente la conexión a PostgreSQL.
+
+---
+
+## Tecnologías
+
+### Backend
+- **Node.js + Express + TypeScript**
+- **Prisma (ORM) + PostgreSQL**
+- **Pino**: Logger estructurado de alto rendimiento.
+- **Docker**: Dockerfiles optimizados para dev y prod.
+
+---
+
+## Cómo probar
+
+### 1. Desarrollo (Hot Reload)
+Usa este modo para programar. Los cambios se reflejan al instante.
+```bash
+docker compose -f docker-compose.dev.yml up --build
+
 ### Resumen para el equipo
 
 1. Clonar el repo.
