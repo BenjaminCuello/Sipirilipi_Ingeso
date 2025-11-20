@@ -1,0 +1,48 @@
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copiar dependencias y esquema
+COPY package*.json ./
+COPY prisma ./prisma
+
+# Instalar dependencias
+RUN npm ci
+
+# Copiar código fuente
+COPY tsconfig.json .
+COPY src ./src
+COPY scripts ./scripts
+
+# --- CLAVE: Generar el cliente ANTES del build ---
+RUN npx prisma generate
+
+# Compilar TypeScript
+RUN npm run build
+
+# Stage 2: Production Runner
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=4000
+
+COPY package*.json ./
+
+# Instalar solo dependencias de producción
+RUN npm ci --omit=dev --ignore-scripts
+
+# Copiar código compilado
+COPY --from=builder /app/dist ./dist
+
+# --- CLAVE: Copiar el cliente generado desde el builder ---
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
+
+COPY --from=builder /app/scripts ./scripts
+
+EXPOSE 4000
+
+CMD ["node", "dist/index.js"]

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma'
 import { requireAuth, requireRole, type AuthPayload } from '../middleware/auth'
-import { Role, TicketStatus } from '@prisma/client'
+import { Role, TicketStatus, Prisma} from '@prisma/client'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
 
@@ -104,21 +104,22 @@ function buildTicketCode() {
   return `TCK-${year}-${base}`
 }
 
-async function createTicketRecord(data: Parameters<typeof prisma.ticket.create>[0]['data']) {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    try {
-      return await prisma.ticket.create({
-        data: { ...data, code: buildTicketCode() },
-        include: ticketInclude,
-      })
-    } catch (error: any) {
-      if (error?.code === 'P2002' && error?.meta?.target?.includes('code')) {
-        continue
-      }
-      throw error
+async function createTicketRecord(data: Omit<Prisma.TicketUncheckedCreateInput, 'code'>) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+        try {
+            return await prisma.ticket.create({
+                data: { ...data, code: buildTicketCode() },
+                include: ticketInclude,
+            })
+        } catch (error: any) {
+            // Si el error es porque el código (code) ya existe, intentamos de nuevo
+            if (error?.code === 'P2002' && (error?.meta?.target?.includes('code') || error?.meta?.target === 'Ticket_code_key')) {
+                continue
+            }
+            throw error
+        }
     }
-  }
-  throw new Error('No se pudo generar el codigo del ticket')
+    throw new Error('No se pudo generar el codigo del ticket')
 }
 
 router.post('/', requireAuth, async (req, res, next) => {

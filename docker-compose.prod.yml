@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sipirilipi_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: pyme
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: sipirilipi_backend_prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      # Nota: En producción real, estas credenciales deben venir de un .env seguro
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/pyme
+      JWT_SECRET: mysecret_prod_key_change_me
+      JWT_EXPIRES_IN: 1h
+      CORS_ORIGIN: http://localhost:5173
+      UPLOADS_DIR: uploads
+      MAX_UPLOAD_MB: 5
+      LOG_LEVEL: info
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+volumes:
+  db-data-prod:

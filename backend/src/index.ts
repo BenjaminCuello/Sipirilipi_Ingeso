@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import pinoHttp from 'pino-http' // <--- Nuevo import
 
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
@@ -13,44 +14,46 @@ import cartRouter from './routes/cart'
 import checkoutRouter from './routes/checkout'
 import ordersRouter from './routes/orders'
 import ticketsRouter from './routes/tickets'
+import healthRouter from './routes/health' // <--- Nuevo import
 import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
+import { logger } from './lib/logger' // <--- Nuevo import
 
 const app = express()
+
+// Middleware de logging HTTP (antes de las rutas)
+app.use(pinoHttp({ logger }))
 
 // middlewares base
 app.use(express.json())
 app.use(cookieParser())
 app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
+    helmet({
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
 )
 
-// CORS configurable por env (soporta lista separada por coma)
-const envOrigins =
-  process.env.CORS_ORIGIN?.split(',')
-    .map(origin => origin.trim())
-    .filter(Boolean) ?? []
+// CORS configurable por env
+const envOrigins = process.env.CORS_ORIGIN?.split(',').map(origin => origin.trim()).filter(Boolean) ?? []
 const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174']
 const originList = envOrigins.length > 0 ? envOrigins : defaultOrigins
 const corsCredentials = process.env.CORS_CREDENTIALS === 'true'
 
 app.use(
-  cors({
-    origin: originList,
-    credentials: corsCredentials,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+    cors({
+        origin: originList,
+        credentials: corsCredentials,
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    })
 )
 
-// endpoints de salud para compatibilidad
-app.get('/health', (_req: Request, res: Response) => res.json({ ok: true }))
-app.get('/api/health', (_req: Request, res: Response) => res.json({ ok: true }))
+// Rutas
+app.use('/api', healthRouter) // <--- Montar healthcheck
+app.get('/health', (_req: Request, res: Response) => res.json({ ok: true })) // Legacy simple
 
-// rutas http
+// rutas http de negocio
 app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/products', productsRouter)
@@ -62,44 +65,50 @@ app.use('/api/orders', ordersRouter)
 app.use('/api/tickets', ticketsRouter)
 
 app.use(
-  '/uploads',
-  express.static(uploadsDir, {
-    setHeaders: res => {
-      res.setHeader('Cache-Control', 'public, max-age=604800')
-      // permitir que el frontend (localhost:5173) pueda leer recursos estaticos
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
-    },
-  })
+    '/uploads',
+    express.static(uploadsDir, {
+        setHeaders: res => {
+            res.setHeader('Cache-Control', 'public, max-age=604800')
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+        },
+    })
 )
 
-// manejador de errores (con fallback por si la importación cambia)
+// manejador de errores
 const fallbackErrorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err)
-  res.status(500).json({ error: 'Error interno' })
+    logger.error({ err }, 'Fallback error handler') // <--- Reemplazo console.error
+    res.status(500).json({ error: 'Error interno' })
 }
 app.use(typeof errorHandler === 'function' ? errorHandler : fallbackErrorHandler)
 
 const PORT = Number(process.env.PORT ?? 4000)
 
-// validaciones basicas de configuracion
+// Validaciones de entorno
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL no esta configurada')
+    logger.error('DATABASE_URL no esta configurada') // <--- Reemplazo
 }
 if (!process.env.JWT_SECRET) {
-  console.warn('JWT_SECRET no esta configurada, endpoints de login fallaran')
+    logger.warn('JWT_SECRET no esta configurada, endpoints de login fallaran') // <--- Reemplazo
 }
 
-app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`)
+const server = app.listen(PORT, () => {
+    logger.info(`API listening on http://localhost:${PORT}`) // <--- Reemplazo
 })
 
-// cierre ordenado de prisma
+// Cierre ordenado
 const shutdown = async () => {
-  try {
-    await prisma.$disconnect()
-  } finally {
-    process.exit(0)
-  }
+    logger.info('Shutting down server...')
+    server.close(async () => {
+        try {
+            await prisma.$disconnect()
+            logger.info('Prisma disconnected')
+            process.exit(0)
+        } catch (err) {
+            logger.error({ err }, 'Error disconnecting Prisma')
+            process.exit(1)
+        }
+    })
 }
+
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)
