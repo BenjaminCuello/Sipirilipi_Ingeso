@@ -156,21 +156,19 @@ docker compose -f docker-compose.dev.yml up --build
 
  Los cambios en el código se reflejan inmediatamente.
 
- ## Novedades Técnicas (Actualizado)
+## 🚀 Novedades Técnicas (Actualización Reciente)
 
-### Producción y Build
-El backend ahora cuenta con un flujo de compilación optimizado para producción:
-1. **TypeScript a JavaScript**: Se compila todo el código en `/dist`.
-2. **Docker Multi-stage**: La imagen final no contiene TypeScript ni dependencias de desarrollo (`devDependencies`), reduciendo su tamaño y mejorando la seguridad.
-3. **Ejecución nativa**: Se utiliza `node dist/index.js` en lugar de `ts-node`.
+### 1. Entorno de Producción (Docker)
+Se ha implementado un flujo de construcción profesional "Multi-stage" para el backend, optimizando la seguridad y el rendimiento.
 
-### Logging y Observabilidad
-Se ha implementado **Pino** como logger profesional:
-- **JSON estructurado**: Logs en formato JSON para fácil ingesta por herramientas de monitoreo (ELK, Datadog, etc.).
-- **Request ID**: Cada petición HTTP recibe un ID único automáticamente.
-- **Healthcheck DB**: Endpoint `/api/health-db` que verifica activamente la conexión a PostgreSQL.
+- **Archivo**: `backend/Dockerfile.prod`
+- **Estrategia**:
+  1. **Builder Stage**: Instala todas las dependencias y compila el código TypeScript a JavaScript (`/dist`).
+  2. **Runner Stage**: Genera una imagen ligera (Alpine) que contiene únicamente las dependencias de producción y el código compilado, sin exponer el código fuente original ni herramientas de desarrollo.
 
----
+**Comando para levantar el entorno de producción:**
+```bash
+docker compose -f docker-compose.prod.yml up --build
 
 ## Tecnologías
 
