@@ -9,10 +9,10 @@
 
 - `npm run dev`: prepara el entorno (instala dependencias, corre migraciones) y levanta el servidor en modo desarrollo.
 - `npm run start`: ejecuta la API con `ts-node-dev` asumiendo que las dependencias ya estan instaladas.
-- `npm run demo`: idem `dev` pero incluye el seed de datos de ejemplo.
+- `npm run demo`: igual que `dev` pero incluye el seed de datos de ejemplo.
 - `npm run build`: transpila TypeScript a `dist/`.
 
-### Endpoints clave – Sprint 2
+### Endpoints clave - Sprint 2
 
 #### Autenticacion
 
@@ -37,7 +37,7 @@
   - `sortBy` (id, name, price_cents, createdAt)  
   - `order` (asc|desc)  
   - `includeInactive` (true|false)  
-  Devuelve productos activos salvo que `includeInactive=true`. Cada item incluye `price_cents`/`is_active` y los alias `price`/`isActive` para el panel.
+  Devuelve productos activos salvo que `includeInactive=true`. Cada item incluye `price_cents` / `is_active` y los alias `price` / `isActive` para el panel.
 - **GET `/api/products/:id`**  
   Requiere `ADMIN` o `SELLER`. Devuelve el detalle completo (mismo shape que la lista).
 - **POST `/api/products`**  
@@ -47,11 +47,11 @@
 - **DELETE `/api/products/:id`**  
   Requiere `ADMIN` o `SELLER`. Responde `204` si elimina; `404` si el ID no existe.
 
-> Los scripts de seed (`scripts/seed.js` o `src/seed.ts`) crean los usuarios `cliente@demo.com` (CUSTOMER) y `vendedor@tienda.com` (SELLER) con contraseña `secret12` y `password123` respectivamente.
+> Los scripts de seed (`scripts/seed.js` o `src/seed.ts`) crean los usuarios `cliente@demo.com` (CUSTOMER) y `vendedor@tienda.com` (SELLER) con contrasena `secret12` y `password123` respectivamente.
 
 ### Pruebas manuales sugeridas
 
-1. **Login como admin**  
+1. **Login como cliente demo**  
    `POST /api/auth/login` con `cliente@demo.com / secret12`. Guardar el `token`.
 2. **Consultar `/auth/me`**  
    `GET /api/auth/me` con `Authorization: Bearer <token>` para confirmar los datos basicos.
@@ -60,9 +60,9 @@
 4. **Cambiar rol**  
    `PUT /api/users/:id/role` con token admin. Probar que sin token retorna `401` y con rol `CUSTOMER` devuelve `403`.
 5. **Crear producto**  
-   `POST /api/products` con token `ADMIN`/`SELLER`. Confirmar `201` y que el objeto incluya los alias `price`/`isActive`.
+   `POST /api/products` con token `ADMIN` o `SELLER`. Confirmar `201` y que el objeto incluya los alias `price` / `isActive`.
 6. **Editar producto**  
-   `PUT /api/products/:id` modificando nombre/stock/estado. Validar que `GET /api/products/:id` refleja los cambios.
+   `PUT /api/products/:id` modificando nombre, stock o estado. Validar que `GET /api/products/:id` refleja los cambios.
 7. **Eliminar producto**  
    `DELETE /api/products/:id` con token valido. Repetir con un ID inexistente para comprobar el `404`.
 
@@ -76,4 +76,5 @@ CORS_ORIGIN="http://localhost:5173"
 CORS_CREDENTIALS="false"
 ```
 
-`CORS_ORIGIN` acepta lista separada por comas y `CORS_CREDENTIALS` habilita o no el envio de cookies encabezados sensibles.
+`CORS_ORIGIN` acepta lista separada por comas y `CORS_CREDENTIALS` habilita o no el envio de cookies y encabezados sensibles.
+

@@ -53,7 +53,6 @@ export function HeroCarousel() {
     <section className="w-full bg-white">
       <div className="w-full max-w-[1400px] mx-auto px-6 py-4">
         <div className="relative h-[280px] sm:h-[360px] rounded-2xl overflow-hidden bg-gradient-to-r from-slate-200 to-slate-100">
-          {/* slide */}
           {slides[i]?.src && (
             <img
               src={slides[i].src}
@@ -63,7 +62,6 @@ export function HeroCarousel() {
             />
           )}
 
-          {/* flechas */}
           {slides.length > 1 && (
             <>
               <button
@@ -83,7 +81,6 @@ export function HeroCarousel() {
             </>
           )}
 
-          {/* puntos */}
           {slides.length > 1 && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
               {slides.map((_, idx) => (
