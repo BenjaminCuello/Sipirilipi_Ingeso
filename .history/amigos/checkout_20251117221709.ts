@@ -1,1 +1,0 @@
-// Archivo migrado: usar backend/src/routes/checkout.ts
