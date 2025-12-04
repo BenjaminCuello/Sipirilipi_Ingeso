@@ -16,6 +16,7 @@ import ticketsRouter from './routes/tickets'
 import { uploadsDir } from './middleware/upload'
 import { prisma } from './lib/prisma'
 import { errorHandler } from './middleware/error'
+import reportsRouter from './routes/reports'
 
 const app = express()
 
@@ -60,6 +61,7 @@ app.use('/api/cart', cartRouter)
 app.use('/api/checkout', checkoutRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/tickets', ticketsRouter)
+app.use('/api/reports', reportsRouter)
 
 app.use(
   '/uploads',
