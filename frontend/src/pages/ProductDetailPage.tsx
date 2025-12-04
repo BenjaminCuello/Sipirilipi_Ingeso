@@ -46,7 +46,7 @@ export default function ProductDetailPage() {
             <div className="space-y-3">
               <div className="rounded-2xl border border-[var(--color-border)] bg-slate-50 aspect-square overflow-hidden grid place-items-center text-sm text-slate-500">
                 {coverUrl ? (
-                  <img src={coverUrl} alt={data.name} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={coverUrl} alt={data.name} className="h-full w-full object-contain" loading="lazy" />
                 ) : (
                   <span>Imagen no disponible</span>
                 )}
@@ -60,7 +60,7 @@ export default function ProductDetailPage() {
                       className={`h-16 w-16 rounded-md border ${idx === activeIndex ? 'border-indigo-500' : 'border-gray-200'} overflow-hidden`}
                       onClick={() => setActiveIndex(idx)}
                     >
-                      <img src={img.thumbUrl} alt={img.filename} className="h-full w-full object-cover" />
+                      <img src={img.thumbUrl} alt={img.filename} className="h-full w-full object-contain" />
                     </button>
                   ))}
                 </div>

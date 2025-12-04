@@ -24,20 +24,26 @@ const CheckoutSuccessPage: React.FC = () => {
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h1 className="text-3xl font-bold mt-4">¡Gracias por tu compra!</h1>
+          <h1 className="text-3xl font-bold mt-4">Gracias por tu compra!</h1>
           <p className="text-gray-600 mt-2">Tu orden ha sido procesada exitosamente.</p>
 
           {orderId && (
             <p className="mt-4 bg-gray-100 p-3 rounded-md">
-              Tu número de orden es: <strong className="text-indigo-600">#{orderId}</strong>
+              Tu numero de orden es: <strong className="text-indigo-600">#{orderId}</strong>
             </p>
           )}
 
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/account/orders" className="btn btn-primary">
-              Ver mis órdenes
+            <Link
+              to="/account/orders"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-[var(--radius-lg)] bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition"
+            >
+              Ver mis ordenes
             </Link>
-            <Link to="/" className="btn btn-secondary">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-[var(--radius-lg)] border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+            >
               Volver al inicio
             </Link>
           </div>

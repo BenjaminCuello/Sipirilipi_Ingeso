@@ -129,11 +129,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-xs text-blue-800 font-medium mb-1">Usuario de prueba:</p>
-          <p className="text-xs text-blue-700">Email: vendedor@tienda.com</p>
-          <p className="text-xs text-blue-700">Contrasena: password123</p>
-        </div>
       </div>
     </main>
   )

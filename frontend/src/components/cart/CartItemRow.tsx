@@ -28,7 +28,7 @@ export function CartItemRow({
     <li className="flex gap-4 rounded-xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
       <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 grid place-items-center">
         {item.image ? (
-          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+          <img src={item.image} alt={item.name} className="h-full w-full object-contain" />
         ) : (
           <span className="text-xs text-slate-500">Sin imagen</span>
         )}

@@ -25,7 +25,7 @@ export function ProductCard({ product, imageUrl }: Props) {
     <div className="rounded-xl border border-[var(--color-border)] bg-white overflow-hidden hover:shadow-md transition">
       <Link to={`/producto/${product.id}`} className="block aspect-[4/3] bg-slate-100 grid place-items-center overflow-hidden">
         {cover ? (
-          <img src={cover} alt={product.name} className="h-full w-full object-cover" />
+          <img src={cover} alt={product.name} className="h-full w-full object-contain" />
         ) : (
           <span className="text-sm text-slate-500">Imagen no disponible</span>
         )}

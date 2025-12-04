@@ -89,8 +89,8 @@ export default function CatalogPage() {
             {products.map((product) => (
               <article key={product.id} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
                 {product.imageUrl && (
-                  <div className="h-40 rounded-xl overflow-hidden bg-slate-100">
-                    <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+                  <div className="h-40 rounded-xl overflow-hidden bg-slate-100 grid place-items-center">
+                    <img src={product.imageUrl} alt={product.name} className="max-h-full max-w-full object-contain" loading="lazy" />
                   </div>
                 )}
                 <div className="flex items-start justify-between gap-3">

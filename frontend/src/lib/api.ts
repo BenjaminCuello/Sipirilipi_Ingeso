@@ -109,7 +109,10 @@ export async function apiFetch<T>(
   if (!res.ok) {
     const errorPayload = (json as { error?: string } | null) ?? null
     const message = errorPayload?.error ?? `HTTP ${res.status}`
-    throw new Error(message)
+    const apiError: any = new Error(message)
+    apiError.status = res.status
+    apiError.payload = json
+    throw apiError
   }
 
   return json as T

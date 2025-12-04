@@ -140,20 +140,52 @@ const MAX_IMAGES_PER_PRODUCT = 10
 
 router.get('/', async (req, res, next) => {
   try {
-    const parsed = listQuerySchema.parse({
-      page: req.query.page,
-      limit: req.query.limit,
-      sortBy: req.query.sortBy,
-      order: req.query.order,
-      includeInactive: req.query.includeInactive,
-      q: req.query.q,
-      categoryId: req.query.categoryId,
-      categorySlug: req.query.categorySlug,
-      minPrice: req.query.minPrice,
-      maxPrice: req.query.maxPrice,
-      color: req.query.color,
-      brand: req.query.brand,
-    })
+    let parsed: z.infer<typeof listQuerySchema>
+
+    try {
+      parsed = listQuerySchema.parse({
+        page: req.query.page,
+        limit: req.query.limit,
+        sortBy: req.query.sortBy,
+        order: req.query.order,
+        includeInactive: req.query.includeInactive,
+        q: req.query.q,
+        categoryId: req.query.categoryId,
+        categorySlug: req.query.categorySlug,
+        minPrice: req.query.minPrice,
+        maxPrice: req.query.maxPrice,
+        color: req.query.color,
+        brand: req.query.brand,
+      })
+    } catch (schemaError: any) {
+      // Fallback simple para casos como ?categoryId=4 sin otros filtros
+      const rawCategoryId = req.query.categoryId
+      if (rawCategoryId && !req.query.q) {
+        const categoryId = Number(rawCategoryId)
+        if (!Number.isInteger(categoryId) || categoryId <= 0) {
+          throw schemaError
+        }
+        const page = Number(req.query.page ?? '1')
+        const limit = Number(req.query.limit ?? '12')
+
+        parsed = {
+          page: Number.isInteger(page) && page > 0 ? page : 1,
+          limit: Number.isInteger(limit) && limit >= 1 && limit <= 100 ? limit : 12,
+          sortBy: 'id',
+          order: 'asc',
+          includeInactive: false,
+          q: undefined,
+          categoryId,
+          categorySlug: undefined,
+          minPrice: undefined,
+          maxPrice: undefined,
+          color: undefined,
+          brand: undefined,
+        }
+      } else {
+        throw schemaError
+      }
+    }
 
     const skip = (parsed.page - 1) * parsed.limit
 
@@ -387,7 +419,7 @@ router.delete('/:id', requireAuth, requireRole(Role.ADMIN, Role.SELLER), async (
 })
 
 // Subida y gestion de imagenes del producto
-const reorderBodySchema = z.object({
+  const reorderBodySchema = z.object({
   order: z.array(z.number().int().min(1)).min(1),
 })
 
@@ -501,7 +533,29 @@ router.patch('/:id/images/reorder', requireAuth, requireRole(Role.ADMIN, Role.SE
       return res.status(400).json({ error: 'Orden invalido' })
     }
 
-    await Promise.all(order.map((imageId, idx) => prisma.productImage.update({ where: { id: imageId }, data: { position: idx + 1 } })))
+    // Reordenamiento en dos pasos para evitar conflictos con la restriccion unica (productId, position)
+    await prisma.$transaction(async tx => {
+      const count = images.length
+      // Paso 1: mover a posiciones temporales fuera del rango actual
+      await Promise.all(
+        order.map((imageId, idx) =>
+          tx.productImage.update({
+            where: { id: imageId },
+            data: { position: count + idx + 1 },
+          })
+        )
+      )
+      // Paso 2: asignar posiciones finales 1..N
+      await Promise.all(
+        order.map((imageId, idx) =>
+          tx.productImage.update({
+            where: { id: imageId },
+            data: { position: idx + 1 },
+          })
+        )
+      )
+    })
+
     res.status(204).send()
   } catch (err: any) {
     if (err?.issues) {

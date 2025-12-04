@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/common/Header";
 import ProductService from "@/services/ProductService";
 import type { CatalogCategory, CatalogProduct } from "@/services/ProductService";
+import { useCartStore, type CartProduct } from "@/store/cartStore";
 
 const SORT_OPTIONS = [
   { value: "relevance", label: "Relevancia" },
@@ -31,6 +32,7 @@ function formatPrice(value: number) {
 export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const addItem = useCartStore((state) => state.addItem);
 
   const query = (searchParams.get("q") || "").trim();
   const page = parseNumber(searchParams.get("page")) ?? 1;
@@ -75,7 +77,7 @@ export default function SearchResultsPage() {
     () => ({
       page,
       limit: 12,
-      q: query,
+      q: query || undefined,
       categoryId: categoryIdParam,
       minPrice: minPriceParam,
       maxPrice: maxPriceParam,
@@ -86,10 +88,17 @@ export default function SearchResultsPage() {
     [page, query, categoryIdParam, minPriceParam, maxPriceParam, colorParam, sortSelection]
   );
 
+  const hasAnyFilter =
+    query.length > 0 ||
+    typeof categoryIdParam === "number" ||
+    typeof minPriceParam === "number" ||
+    typeof maxPriceParam === "number" ||
+    !!colorParam;
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["search-results", searchVariables],
     queryFn: () => ProductService.search(searchVariables),
-    enabled: query.length > 0,
+    enabled: hasAnyFilter,
   });
 
   const { data: categories = [] } = useQuery({
@@ -97,15 +106,24 @@ export default function SearchResultsPage() {
     queryFn: () => ProductService.listCategories(),
   });
 
+  const selectedCategory =
+    typeof categoryIdParam === "number"
+      ? categories.find((category: CatalogCategory) => category.id === categoryIdParam)
+      : undefined;
+
   const pagination = data?.pagination;
   const items = data?.data ?? [];
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!query) return;
 
     const params = new URLSearchParams(searchParams);
-    params.set("q", query);
+
+    if (query) {
+      params.set("q", query);
+    } else {
+      params.delete("q");
+    }
     params.set("page", "1");
 
     if (formState.categoryId) {
@@ -160,7 +178,7 @@ export default function SearchResultsPage() {
     setSearchParams(params);
   };
 
-  if (!query) {
+  if (!hasAnyFilter) {
     return (
       <main className="min-h-dvh bg-white">
         <Header />
@@ -179,12 +197,18 @@ export default function SearchResultsPage() {
     );
   }
 
+  const titleText = selectedCategory
+    ? `Resultados en categoria "${selectedCategory.name}"`
+    : query.length
+    ? `Resultados para "${query}"`
+    : "Resultados";
+
   return (
     <main className="min-h-dvh bg-white">
       <Header initialQuery={query} />
       <section className="w-full max-w-[1200px] mx-auto px-6 py-8 space-y-8">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Resultados para "{query}"</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">{titleText}</h1>
           {pagination && (
             <p className="text-sm text-gray-600 mt-1">
               {pagination.total} articulos encontrados
@@ -303,7 +327,7 @@ export default function SearchResultsPage() {
                       <img
                         src={product.thumbUrl ?? product.imageUrl ?? undefined}
                         alt={product.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                         loading="lazy"
                       />
                     ) : (
@@ -338,6 +362,15 @@ export default function SearchResultsPage() {
                       </button>
                       <button
                         type="button"
+                        onClick={() =>
+                          addItem({
+                            id: product.id,
+                            name: product.name,
+                            price_cents: product.price_cents,
+                            image: product.imageUrl ?? product.thumbUrl ?? null,
+                            stock: product.stock,
+                          } as CartProduct)
+                        }
                         className="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition"
                       >
                         Agregar al carrito

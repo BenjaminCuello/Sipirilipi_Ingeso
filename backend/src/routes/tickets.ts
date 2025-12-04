@@ -158,15 +158,15 @@ router.post('/', requireAuth, async (req, res, next) => {
     const uniqueIds = new Set<number>()
     const itemsData = payload.items.map((item) => {
       if (uniqueIds.has(item.orderItemId)) {
-        throw new Error('No se puede repetir el mismo producto en el ticket')
+        throw new Error('Este producto ya fue agregado al ticket.')
       }
       uniqueIds.add(item.orderItemId)
       const orderItem = itemsMap.get(item.orderItemId)
       if (!orderItem) {
-        throw new Error('Producto invalido para esta orden')
+        throw new Error('El producto seleccionado no pertenece a esta orden.')
       }
       if (item.quantity > orderItem.quantity) {
-        throw new Error('Cantidad solicitada supera la orden original')
+        throw new Error('La cantidad seleccionada es mayor a la comprada en la orden.')
       }
       return { orderItemId: orderItem.id, quantity: item.quantity }
     })

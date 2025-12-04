@@ -1,7 +1,12 @@
 import { Router, Request, Response } from 'express'
+import { Role } from '@prisma/client'
 import { prisma } from '../lib/prisma'
+import { requireAuth, requireRole } from '../middleware/auth'
 
 const router = Router()
+
+// Solo ADMIN / SELLER pueden acceder a reportes
+router.use(requireAuth, requireRole(Role.ADMIN, Role.SELLER))
 
 // GET /api/reports/sales-by-month
 router.get('/sales-by-month', async (_req: Request, res: Response) => {
@@ -20,11 +25,11 @@ router.get('/sales-by-month', async (_req: Request, res: Response) => {
     `
 
     const result = sales.map(s => ({
-      month: s. month,
+      month: s.month,
       total: Number(s.total),
     }))
 
-    res. json(result)
+    res.json(result)
   } catch (error) {
     console.error('Error fetching sales by month:', error)
     res.status(500).json({ error: 'Error al obtener ventas por mes' })
@@ -34,7 +39,7 @@ router.get('/sales-by-month', async (_req: Request, res: Response) => {
 // GET /api/reports/top-products
 router.get('/top-products', async (_req: Request, res: Response) => {
   try {
-    const topProducts = await prisma. orderItem.groupBy({
+    const topProducts = await prisma.orderItem.groupBy({
       by: ['productId'],
       _sum: {
         quantity: true,
@@ -54,7 +59,7 @@ router.get('/top-products', async (_req: Request, res: Response) => {
       select: { id: true, name: true },
     })
 
-    const productMap = new Map(products.map(p => [p. id, p.name]))
+    const productMap = new Map(products.map(p => [p.id, p.name]))
 
     const result = topProducts.map(p => ({
       id: p.productId,
@@ -66,7 +71,7 @@ router.get('/top-products', async (_req: Request, res: Response) => {
     res.json(result)
   } catch (error) {
     console.error('Error fetching top products:', error)
-    res. status(500).json({ error: 'Error al obtener top productos' })
+    res.status(500).json({ error: 'Error al obtener top productos' })
   }
 })
 
@@ -75,7 +80,7 @@ router.get('/low-stock', async (_req: Request, res: Response) => {
   try {
     const lowStock = await prisma.product.findMany({
       where: {
-        stock: { lt: 10 },
+        stock: { lt: 5 },
         is_active: true,
       },
       select: {
@@ -91,7 +96,7 @@ router.get('/low-stock', async (_req: Request, res: Response) => {
       id: p.id,
       name: p.name,
       stock: p.stock,
-      minimum: 10, // umbral configurable
+      minimum: 5, // umbral configurable
     }))
 
     res.json(result)

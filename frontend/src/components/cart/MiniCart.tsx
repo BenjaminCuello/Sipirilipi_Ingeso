@@ -86,7 +86,12 @@ export function MiniCart() {
                   {items.map((item: CartItem) => (
                     <li key={item.id} className="rounded-lg bg-white/10 px-3 py-3">
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="flex items-start gap-3">
+                          {item.image && (
+                            <div className="h-10 w-10 rounded-md overflow-hidden bg-white/10 shrink-0">
+                              <img src={item.image} alt={item.name} className="h-full w-full object-contain" />
+                            </div>
+                          )}
                           <p className="text-sm font-medium leading-tight">{item.name}</p>
                           <p className="text-xs text-white/70">
                             {formatCLPFromCents(item.price_cents)} c/u

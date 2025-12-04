@@ -22,6 +22,7 @@ export type CartState = {
   // server sync helpers
   serverLoaded?: boolean;
   serverMap?: Record<number, number>; // productId -> cartItemId
+  imageMap?: Record<number, string | null>; // productId -> image url
   addItem: (product: CartProduct, quantity?: number) => void;
   removeItem: (id: number) => void;
   increment: (id: number) => void;
@@ -50,13 +51,16 @@ const cartStore: StateCreator<CartState> = (set, get) => ({
   totalCents: 0,
   serverLoaded: false,
   serverMap: {},
+  imageMap: {},
   setItems: (items: CartItem[]) => {
     set({ ...recalc(items), items });
   },
   setFromServer: (cart: ServerCart) => {
     const prev = get().items;
+    const imageMap = get().imageMap ?? {};
     const items: CartItem[] = cart.items.map((ci: ServerCartItem) => {
-      const image = prev.find((p) => p.id === ci.productId)?.image ?? null;
+      const image =
+        imageMap[ci.productId] ?? prev.find((p) => p.id === ci.productId)?.image ?? null;
       return {
         id: ci.product.id,
         name: ci.product.name,
@@ -67,11 +71,22 @@ const cartStore: StateCreator<CartState> = (set, get) => ({
       };
     });
     const serverMap: Record<number, number> = Object.fromEntries(cart.items.map((ci) => [ci.productId, ci.id]));
-    set({ ...recalc(items), items, serverLoaded: true, serverMap });
+    const nextImageMap: Record<number, string | null> = { ...imageMap };
+    for (const item of items) {
+      nextImageMap[item.id] = item.image ?? null;
+    }
+    set({ ...recalc(items), items, serverLoaded: true, serverMap, imageMap: nextImageMap });
   },
   addItem: (product: CartProduct, quantity = 1) => {
     if (quantity <= 0) return;
     if (isAuthenticated()) {
+      // recordar imagen localmente (aunque el servidor no la devuelva)
+      if (typeof product.image !== 'undefined') {
+        set((state: CartState) => ({
+          ...state,
+          imageMap: { ...(state.imageMap ?? {}), [product.id]: product.image ?? null },
+        }));
+      }
       // sync with server then update from response
       void CartService.add(product.id, quantity)
         .then((cart) => get().setFromServer(cart))

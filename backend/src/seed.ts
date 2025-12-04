@@ -18,8 +18,12 @@ const unsplash = (size: string, terms: string) => `https://source.unsplash.com/$
 
 async function seedUsers() {
   const users = [
-    { email: 'cliente@demo.com', name: 'Cliente Demo', password: 'secret12', role: Role.CUSTOMER },
+    { email: 'admin@tienda.com', name: 'Admin Demo', password: 'admin123', role: Role.ADMIN },
     { email: 'vendedor@tienda.com', name: 'Vendedor Demo', password: 'password123', role: Role.SELLER },
+    { email: 'cliente@demo.com', name: 'Cliente Demo', password: 'secret12', role: Role.CUSTOMER },
+    { email: 'cliente2@demo.com', name: 'Cliente Demo 2', password: 'secret12', role: Role.CUSTOMER },
+    { email: 'cliente3@demo.com', name: 'Cliente Demo 3', password: 'secret12', role: Role.CUSTOMER },
+    { email: 'cliente4@demo.com', name: 'Cliente Demo 4', password: 'secret12', role: Role.CUSTOMER },
   ]
 
   for (const user of users) {

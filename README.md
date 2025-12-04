@@ -1,35 +1,34 @@
-﻿# E-commerce Pyme — Gestión de productos y ventas
+# E-commerce Pyme - Gestion de productos y ventas
 
-Proyecto académico para construir un sistema **e-commerce local** orientado a una **pyme de venta de artículos de computación**.
-Incluye **backend, frontend y base de datos** con funcionalidades completas de catálogo, carrito, checkout, reportes y gestión administrativa.
+Proyecto academico para construir un sistema **e-commerce local** orientado a una **pyme de venta de articulos de computacion**.  
+Incluye **backend, frontend y base de datos** con funcionalidades completas de catalogo, carrito, checkout, reportes y gestion administrativa.
 
 ---
 
 ## Objetivo del sistema
 
-El sistema busca profesionalizar la gestión de la pyme mediante:
+El sistema busca profesionalizar la gestion de la pyme mediante:
 
-- **Catálogo público** con búsqueda y filtros por categoría.
-- **Cuentas y roles**: admin, vendedor (dueño) y cliente.
-- **Backoffice (admin/vendedor)**: CRUD de productos/categorías, gestión de stock, fotos, precios y descripciones.
-- **Carrito y checkout (cliente)**: agregar/editar/quitar, validar stock, pago simulado y registro de pago.
+- **Catalogo publico** con busqueda y filtros por categoria.
+- **Cuentas y roles**: admin, vendedor (dueno) y cliente.
+- **Backoffice (admin/vendedor)**: CRUD de productos y categorias, gestion de stock, fotos, precios y descripciones.
+- **Carrito y checkout (cliente)**: agregar, editar, quitar productos, validar stock, pago simulado y registro de pago.
 - **Reportes (vendedor)**: ventas por mes, top productos y stock bajo umbral.
-- **Tickets de cambio**: apertura dentro de 10 días con número de pedido, productos y motivo.
+- **Tickets de cambio**: apertura dentro de 10 dias con numero de pedido, productos y motivo.
 
 ---
 
-## Tecnologías a usar
+## Tecnologias
 
 ### Backend
 
 - **Node.js + Express + TypeScript**
 - **Prisma** (ORM) + **PostgreSQL**
 - **Auth**: JWT + bcrypt
-- **Validación**: Zod
+- **Validacion**: Zod
 - **Seguridad**: Helmet, CORS, express-rate-limit
-- **Imágenes**: multer + sharp (carpeta `uploads/`)
+- **Imagenes**: multer + sharp (carpeta `uploads/`)
 - **Logs**: pino o winston
-- **Docs**: Swagger (OpenAPI) (opcional)
 
 ### Frontend
 
@@ -37,165 +36,173 @@ El sistema busca profesionalizar la gestión de la pyme mediante:
 - **React Router**, **React Query**
 - **React Hook Form** + Zod
 - **Tailwind CSS**
-- **Recharts** (gráficos)
+- **Recharts** (graficos)
 - **Zustand** (estado ligero)
 
 ### Base de datos / entorno
 
-- **PostgreSQL** (Windows)
-- Extensión recomendada: **pg_trgm** (búsqueda por texto)
+- **PostgreSQL** (Windows o Docker)
+- Extension recomendada: **pg_trgm** (busqueda por texto)
 - Seeds/backups: `pg_dump` / `pg_restore`
 
 ---
 
-## Módulos principales de momento
+## Modulos principales
 
-- **Auth & Usuarios**: registro/login, hash de contraseñas, emisión/refresco de JWT, middleware de roles.
-- **Catálogo**: categorías, productos, imágenes, búsqueda y filtros; paginación y orden.
-- **Carrito & Checkout**: carrito por usuario, validación de stock, creación de orden.
-- **Órdenes & Pagos**: flujo `pending → paid` con pago simulado, registro en payments, decremento de stock atómico.
+- **Auth y usuarios**: registro, login, hash de contrasenas, emision y refresco de JWT, middleware de roles.
+- **Catalogo**: categorias, productos, imagenes, busqueda y filtros; paginacion y orden.
+- **Carrito y checkout**: carrito por usuario, validacion de stock, creacion de orden y pago simulado.
+- **Ordenes y pagos**: flujo `pending -> paid` con pago simulado, registro en `payments`, decremento de stock atomico.
 - **Reportes**: ventas por mes, top productos, stock bajo umbral.
-- **Tickets de cambio**: creación y gestión con ventana de 10 días desde la fecha de la orden.
+- **Tickets de cambio**: creacion y gestion con ventana de 10 dias desde la fecha de la orden.
 
 ---
 
-## Flujo de interacción de momento
+## Flujo de interaccion
 
 ### Cliente no autenticado
 
-- Navega catálogo → busca/filtra → ve detalle producto → agrega al carrito (local o user si ya autenticado).
+- Navega catalogo -> busca y filtra -> ve detalle de producto -> agrega al carrito (local o asociado al usuario si ya esta autenticado).
 
-### Autenticación
+### Autenticacion
 
-- Login → API emite JWT → Front guarda sesión (cookie HttpOnly o memoria segura) → rutas privadas habilitadas.
+- Login -> la API emite JWT -> el frontend guarda la sesion -> se habilitan rutas privadas segun el rol.
 
-## Cómo probar (demo local)
+---
+
+## Como probar (demo local)
 
 Requisitos:
 
 - Node.js 18+
 - PostgreSQL local
 
-1. Backend
+### 1. Backend
 
-- Ejecutar en una terminal dentro del proyecto:
-  cd backend
-  npm run dev
-  La API queda disponible en http://localhost:4000/api.
+En una terminal:
 
-2. Frontend
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-- Abrir otra terminal dentro del proyecto y ejecutar:
-  cd frontend
-  npm run dev
-  (el script copia .env si falta, instala dependencias y levanta Vite)
+La API queda disponible en `http://localhost:4000/api`.
 
-3. Flujos
+### 2. Frontend
 
-- Catálogo público (home): http://localhost:5173/
-- Login: http://localhost:5173/login
-  - Credenciales demo: cliente@demo.com / secret12
-  - Tras iniciar sesión, el header mostrará “Cerrar sesión”
-- Área privada: http://localhost:5173/admin (requiere sesión)
+En otra terminal:
 
-Notas:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-- CORS está habilitado para http://localhost:5173 en desarrollo.
-- Si el carrusel no muestra imágenes, agrega opcionalmente banners en frontend/public/banners/.
-  Los productos mostrados son solo una demo de lo que se mostrará al final.
+El frontend queda disponible en `http://localhost:5173/`.
 
-### Backoffice (admin/vendedor)
+### 3. Flujos rapidos
 
-- CRUD productos/categorías → subida de imágenes → reportes (ventas/mes, top productos, stock bajo) → gestión de tickets de cambio.
+- Catalogo publico (home): `http://localhost:5173/`
+- Login: `http://localhost:5173/login`
+- Panel de administracion / vendedor: `http://localhost:5173/panel/products`
 
 ---
 
-## Ejecución con Docker
+## Credenciales demo (usuarios de prueba)
+
+Los scripts de seed (`backend/scripts/seed.js` o `backend/src/seed.ts`) crean automaticamente los siguientes usuarios de ejemplo:
+
+- **Admin**
+  - Email: `admin@tienda.com`
+  - Contrasena: `admin123`
+- **Vendedor**
+  - Email: `vendedor@tienda.com`
+  - Contrasena: `password123`
+- **Clientes**
+  - Email: `cliente@demo.com` / Contrasena: `secret12`
+  - Email: `cliente2@demo.com` / Contrasena: `secret12`
+  - Email: `cliente3@demo.com` / Contrasena: `secret12`
+  - Email: `cliente4@demo.com` / Contrasena: `secret12`
+
+Estos usuarios estan pensados solo para la demo y ambiente local.
+
+---
+
+## Ejecucion con Docker (demo)
 
 Requisitos:
 
 - Docker Desktop (o motor Docker) + Docker Compose v2
 
-Pasos:
+Desde la raiz del proyecto:
 
-```
-docker-compose up --build
+```bash
+docker compose up --build
 ```
 
 Servicios expuestos:
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:4000/api
-- PostgreSQL: localhost:5432 (usuario `postgres`, password `postgres`, base `pyme`)
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:4000/api`
+- PostgreSQL: `localhost:5432` (usuario `postgres`, password `postgres`, base `pyme`)
 
-El contenedor del backend ejecuta automáticamente las migraciones (`prisma migrate dev`) y el seed con usuarios demo:
-
-- Cliente: `cliente@demo.com / secret12`
-- Vendedor: `vendedor@tienda.com / password123`
+El contenedor del backend ejecuta automaticamente las migraciones (`prisma migrate dev`) y el seed con los usuarios demo descritos en la seccion anterior.
 
 Para detener todo:
 
-```
-docker-compose down
+```bash
+docker compose down
 ```
 
 Si quieres comenzar desde cero (reiniciar datos):
 
-```
-docker-compose down -v
-```
-
-### Desarrollo con hot reload (Docker)
-
-Si quieres trabajar desde Docker con recarga en vivo (sin instalar Node/Postgres localmente), usa:
-
-```
-docker compose -f docker-compose.dev.yml up --build
-```
-
-
- Los cambios en el código se reflejan inmediatamente.
-
-## 🚀 Novedades Técnicas (Actualización Reciente)
-
-### 1. Entorno de Producción (Docker)
-Se ha implementado un flujo de construcción profesional "Multi-stage" para el backend, optimizando la seguridad y el rendimiento.
-
-- **Archivo**: `backend/Dockerfile.prod`
-- **Estrategia**:
-  1. **Builder Stage**: Instala todas las dependencias y compila el código TypeScript a JavaScript (`/dist`).
-  2. **Runner Stage**: Genera una imagen ligera (Alpine) que contiene únicamente las dependencias de producción y el código compilado, sin exponer el código fuente original ni herramientas de desarrollo.
-
-**Comando para levantar el entorno de producción:**
 ```bash
-docker compose -f docker-compose.prod.yml up --build
-
-## Tecnologías
-
-### Backend
-- **Node.js + Express + TypeScript**
-- **Prisma (ORM) + PostgreSQL**
-- **Pino**: Logger estructurado de alto rendimiento.
-- **Docker**: Dockerfiles optimizados para dev y prod.
+docker compose down -v
+```
 
 ---
 
-## Cómo probar
+## Desarrollo con Docker (hot reload)
 
-### 1. Desarrollo (Hot Reload)
-Usa este modo para programar. Los cambios se reflejan al instante.
+Si quieres trabajar desde Docker con recarga en vivo (sin instalar Node ni PostgreSQL localmente), usa:
+
 ```bash
 docker compose -f docker-compose.dev.yml up --build
+```
 
-### Resumen para el equipo
+Los cambios en el codigo se reflejan inmediatamente tanto en backend como en frontend.
+
+---
+
+## Entorno de produccion (Docker)
+
+Se incluye un flujo de construccion multi-stage para el backend, optimizado para entornos de produccion.
+
+- Archivo principal: `backend/Dockerfile.prod`
+- Estrategia:
+  1. **Builder stage**: instala dependencias y compila TypeScript a JavaScript (`/dist`).
+  2. **Runner stage**: genera una imagen ligera (por ejemplo Alpine) que contiene solo dependencias de produccion y el codigo compilado, sin el codigo fuente original ni herramientas de desarrollo.
+
+Ejemplo de comando:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+---
+
+## Resumen rapido para el equipo
 
 1. Clonar el repo.
-2. Elegir una de estas opciones:
-   - **Local**: instalar dependencias (`npm install`) y usar `npm run dev` en backend/frontend con PostgreSQL local.
-  - **Docker demo**: `docker compose up --build` para la versión compilada lista para demo.
+2. Elegir una de estas opciones de ejecucion:
+   - **Local**: instalar dependencias (`npm install`) y usar `npm run dev` en backend y frontend con PostgreSQL local.
+   - **Docker demo**: `docker compose up --build` para la version compilada lista para demo.
    - **Docker dev**: `docker compose -f docker-compose.dev.yml up --build` para trabajar con hot reload sin dependencias locales.
-3. Credenciales demo:
-   - Cliente: `cliente@demo.com / secret12`
+3. Usar las **credenciales demo**:
+   - Admin: `admin@tienda.com / admin123`
    - Vendedor: `vendedor@tienda.com / password123`
+   - Clientes: `cliente@demo.com`, `cliente2@demo.com`, `cliente3@demo.com`, `cliente4@demo.com` (todas con `secret12`)
 
- Con cualquiera de los modos, el backend ejecuta migraciones y seed automáticamente al iniciar.
+Con cualquiera de los modos, el backend ejecuta migraciones y seed automaticamente al iniciar.
+

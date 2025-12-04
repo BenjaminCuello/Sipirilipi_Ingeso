@@ -277,6 +277,33 @@ export default function ProductFormPage() {
     setPendingFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  function handleMoveImage(image: GalleryImage, direction: -1 | 1) {
+    if (!gallery || gallery.length < 2) return
+    const current = gallery
+    const index = current.findIndex((img) => img.id === image.id)
+    const newIndex = index + direction
+    if (index === -1 || newIndex < 0 || newIndex >= current.length) return
+
+    const next = [...current]
+    const [removed] = next.splice(index, 1)
+    next.splice(newIndex, 0, removed)
+    setGallery(next)
+
+    if (!isEdit || !id) return
+    const productId = Number(id)
+    const previous = current
+
+    void (async () => {
+      try {
+        await ProductImagesService.reorder(productId, next.map((img) => img.id))
+        toast.push('success', 'Orden de imagenes actualizado')
+      } catch (error) {
+        setGallery(previous)
+        toast.push('error', error instanceof Error ? error.message : 'No se pudo reordenar las imagenes')
+      }
+    })()
+  }
+
   // no copy util necesario con galeria asociada
 
   return (
@@ -453,15 +480,35 @@ export default function ProductFormPage() {
               {/* Galeria existente (modo edicion) */}
               {isEdit && gallery.length > 0 && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {gallery.map((img) => (
+                  {gallery.map((img, index) => (
                     <div key={img.id} className="rounded-lg border border-gray-200 p-3 flex gap-3">
                       <div className="h-16 w-16 rounded-md bg-gray-100 overflow-hidden flex items-center justify-center">
-                        <img src={img.thumbUrl} alt={img.filename} className="h-full w-full object-cover" />
+                        <img src={img.thumbUrl} alt={img.filename} className="h-full w-full object-contain" />
                       </div>
                       <div className="flex-1 space-y-1">
                         <p className="text-sm font-medium text-gray-900 line-clamp-1">{img.filename}</p>
-                        <p className="text-xs text-gray-500">posicion {img.position}</p>
+                        <p className="text-xs text-gray-500">posicion {index + 1}</p>
                         <div className="flex gap-2 pt-1">
+                          {gallery.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={index === 0}
+                                onClick={() => handleMoveImage(img, -1)}
+                                className="text-xs px-3 py-1 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                              >
+                                Subir
+                              </button>
+                              <button
+                                type="button"
+                                disabled={index === gallery.length - 1}
+                                onClick={() => handleMoveImage(img, 1)}
+                                className="text-xs px-3 py-1 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                              >
+                                Bajar
+                              </button>
+                            </>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleRemoveExisting(img)}
